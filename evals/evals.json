@@ -1,0 +1,108 @@
+{
+  "skill_name": "mise-en-place",
+  "notes": "Run each prompt in a fresh session with the skill installed. 'should_trigger' cases check discovery; the rest grade the output against the expectations. Score = expectations met / total.",
+  "trigger_cases": [
+    {
+      "prompt": "Here's our PRD for the new billing service. Break it down into specs, architecture and a phased plan before we write code.",
+      "should_trigger": true
+    },
+    {
+      "prompt": "Set up spec-driven development for this greenfield project from the attached research report.",
+      "should_trigger": true
+    },
+    {
+      "prompt": "Analyse requirements.docx and give me EARS requirements, ADRs and a roadmap.",
+      "should_trigger": true
+    },
+    {
+      "prompt": "We already have a blueprint folder. Add a requirement for CSV export and update the plan.",
+      "should_trigger": true
+    },
+    {
+      "prompt": "Fix the null reference exception in OrderService.cs.",
+      "should_trigger": false
+    },
+    {
+      "prompt": "Write a README for this library.",
+      "should_trigger": false
+    },
+    {
+      "prompt": "Implement backlog item SL-1-02.",
+      "should_trigger": false
+    }
+  ],
+  "evals": [
+    {
+      "id": 1,
+      "name": "greenfield-small-brief",
+      "prompt": "Use mise-en-place on blueprint/brief.md. Stack: Python 3.13 + PostgreSQL. Run straight through without approval stops.",
+      "files": [
+        "examples/shortlink/blueprint/brief.md"
+      ],
+      "expectations": [
+        "Asks one consolidated clarification form (or confirms defaults) before writing files",
+        "The source brief is byte-for-byte unchanged",
+        "Between 2 and 5 capabilities, including a security capability",
+        "Live requirements within budget (<= 20 for this brief); the baseline measurement is a backlog item, not an FR",
+        "Every FR names a component as subject; none says 'the system'",
+        "No library or framework names appear in 02-specs",
+        "Alias length, latency budget and expiry appear as policy:<key> values",
+        "Every Must in P0 and P1 has a Given/When/Then AC",
+        "Roadmap P0 is measurement or baseline, before core features",
+        "generate_register.py exits 0 and check_links.py reports 0 broken links",
+        "Creates .github/copilot-instructions.md, path-scoped instructions, 4 project skills and a read-only spec-reviewer agent",
+        "Final report lists counts, judgement calls and open questions, and does not commit",
+        "README Decisions table lists every step 2 answer with Confirmed by owner / Default accepted"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "approval-gates-and-resume",
+      "prompt": "Use mise-en-place on blueprint/brief.md with approval stops.",
+      "files": [
+        "examples/shortlink/blueprint/brief.md"
+      ],
+      "expectations": [
+        "Stops after analysis; README shows Gate A as '⏳ awaiting approval' and step 3",
+        "Gate A message shows capabilities, D-n, risks and OQs with defaults, but no requirement IDs",
+        "In a new session, 'continue mise-en-place, Gate A approved' resumes at step 4, marks Gate A ✓ with date and OQs Resolved, and does not rewrite approved analysis rows",
+        "Stops at Gate B with counts against the requirement budget and lists late findings"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "change-mode",
+      "prompt": "Using mise-en-place, add this to Shortlink: creators can delete their own links. Update everything affected.",
+      "files": [
+        "examples/shortlink/"
+      ],
+      "expectations": [
+        "Creates blueprint/changes/CR-001-*.md with the request quoted verbatim and a filled Impact table",
+        "Leaves README step at 12 and adds a Change log row",
+        "Allocates new IDs after the highest existing ones per prefix (for example FR-LNK-005); renumbers nothing",
+        "Resolves OQ-1 as 'Resolved: … (CR-001, date)' rather than deleting it",
+        "Places new items in the earliest not-started phase and adds ACs and a backlog item",
+        "Updates the HTTP contracts and data model only where affected; untouched layers are unchanged",
+        "Adds an ADR (new or amends) or states in the CR why none is needed",
+        "generate_register.py exits 0 and check_links.py reports 0 broken links",
+        "In a headless run the change gate is recorded as 'skipped (user unreachable)' and named in the report"
+      ]
+    },
+    {
+      "id": 4,
+      "name": "brownfield",
+      "prompt": "This repo already has code but no specs. Use mise-en-place with docs/vision.md as the source.",
+      "files": [],
+      "expectations": [
+        "Analysis has a Current state table with evidence paths",
+        "Requirements the code satisfies have Status Implemented with an impl: path; none are Verified without a named test",
+        "Stack is not asked; recorded as ADR 'Accepted (recorded retrospectively, …)'",
+        "P0 contains characterisation-test backlog items for Implemented Musts and does not modify src/ or tests/",
+        "Existing .github/copilot-instructions.md text is kept verbatim at the top with an appended Blueprint section; the 'never log note text' rule appears as a principle",
+        "Customisations exist for both Copilot and Claude Code, with one canonical always-on file and a pointer in the other",
+        "generate_register.py exits 0 and check_links.py reports 0 broken links",
+        "Claude path-scoped rules are in .claude/rules/ with paths: front matter; no file is added under src/ or tests/ (grade.py --frozen src tests)"
+      ]
+    }
+  ]
+}
