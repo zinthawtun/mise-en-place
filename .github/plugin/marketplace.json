@@ -1,0 +1,15 @@
+{
+  "name": "mise-en-place",
+  "owner": {
+    "name": "Zin Thaw Tun",
+    "url": "https://github.com/zinthawtun"
+  },
+  "plugins": [
+    {
+      "name": "mise-en-place",
+      "source": "./",
+      "description": "Spec-driven planning skill: turns a brief, PRD or requirements document into a traceable project blueprint (EARS specs, ADRs, roadmap, validation, traceability) plus agent customisations.",
+      "version": "1.0.0"
+    }
+  ]
+}

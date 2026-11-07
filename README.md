@@ -1,3 +1,10 @@
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="./assets/logo-dark.png">
+    <img src="./assets/logo-light.png" alt="mise-en-place logo" width="240">
+  </picture>
+</p>
+
 # mise-en-place
 
 **Mise-en-place** is a spec-driven planning skill for turning a business
@@ -135,9 +142,9 @@ python3 skills/mise-en-place/scripts/check_links.py examples/shortlink/blueprint
 ```
 
 See [`evals/README.md`](./evals/README.md) for running and grading additional
-scenarios. When releasing, bump `version` in all three manifests and
-`.claude-plugin/marketplace.json`, and add an entry to
-[`CHANGELOG.md`](./CHANGELOG.md).
+scenarios. When releasing, bump `version` in all three manifests,
+`.claude-plugin/marketplace.json`, and `.github/plugin/marketplace.json`, and
+add an entry to [`CHANGELOG.md`](./CHANGELOG.md).
 
 ## License
 
