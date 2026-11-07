@@ -28,4 +28,4 @@ jobs:
       - name: Links
         run: python3 skills/mise-en-place/scripts/check_links.py .
       - name: Manifests are valid JSON
-        run: for f in plugin.json .claude-plugin/*.json .cursor-plugin/*.json; do python3 -m json.tool "$f" > /dev/null; done
+        run: for f in plugin.json .claude-plugin/*.json .cursor-plugin/*.json .github/plugin/*.json; do python3 -m json.tool "$f" > /dev/null; done

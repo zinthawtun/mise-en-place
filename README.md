@@ -1,3 +1,10 @@
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="./assets/logo-dark.png">
+    <img src="./assets/logo-light.png" alt="mise-en-place logo" width="240">
+  </picture>
+</p>
+
 # mise-en-place
 
 **Mise-en-place** is a spec-driven planning skill for turning a business
@@ -15,6 +22,9 @@ skills for the coding agents that will implement the project.
 copilot plugin install zinthawtun/mise-en-place
 ```
 
+Update or remove the plugin with `copilot plugin update mise-en-place` or
+`copilot plugin uninstall mise-en-place`.
+
 ### Claude Code
 ```text
 /plugin marketplace add zinthawtun/mise-en-place
@@ -22,8 +32,11 @@ copilot plugin install zinthawtun/mise-en-place
 ```
 
 ### Cursor
-Add the plugin from this repository in **Customize → Plugins**. It uses the
-[Agent Plugins](https://agent-plugins.org) manifest at the repository root.
+Clone the repository into Cursor's local plugins folder, then restart Cursor and
+check **Customize**:
+```bash
+git clone https://github.com/zinthawtun/mise-en-place ~/.cursor/plugins/local/mise-en-place
+```
 
 ### Manual (any agent that supports skills)
 Copy [`skills/mise-en-place/`](./skills/mise-en-place/) into your project's
@@ -135,9 +148,9 @@ python3 skills/mise-en-place/scripts/check_links.py examples/shortlink/blueprint
 ```
 
 See [`evals/README.md`](./evals/README.md) for running and grading additional
-scenarios. When releasing, bump `version` in all three manifests and
-`.claude-plugin/marketplace.json`, and add an entry to
-[`CHANGELOG.md`](./CHANGELOG.md).
+scenarios. When releasing, bump `version` in all three manifests,
+`.claude-plugin/marketplace.json`, and `.github/plugin/marketplace.json`, and
+add an entry to [`CHANGELOG.md`](./CHANGELOG.md).
 
 ## License
 
