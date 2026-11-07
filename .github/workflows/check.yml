@@ -26,6 +26,6 @@ jobs:
           git -C "$tmp" -c user.name=ci -c user.email=ci@example.com commit -qm baseline
           python3 evals/grade.py "$tmp" --source blueprint/brief.md --budget 20 --agents copilot
       - name: Links
-        run: python3 skills/mise-en-place/scripts/check_links.py examples/shortlink/blueprint examples/shortlink/.github
+        run: python3 skills/mise-en-place/scripts/check_links.py .
       - name: Manifests are valid JSON
         run: for f in plugin.json .claude-plugin/*.json .cursor-plugin/*.json; do python3 -m json.tool "$f" > /dev/null; done
