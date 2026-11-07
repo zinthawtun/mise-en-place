@@ -92,8 +92,8 @@ Using [customisations.md](./customisations.md), create or merge the following fo
 ## Step 11: verify
 1. `check_links.py <blueprint> .github .claude .cursor CLAUDE.md AGENTS.md README.md`. Fix every broken relative link. Paths that don't exist only produce a warning.
 2. Re-run `generate_register.py --budget <N>`. It must exit 0.
-3. If the skill's `evals/grade.py` is present, run it as a final self-check and fix every FAIL:
-   `python3 <skill>/evals/grade.py . --source <blueprint>/<source>.md --budget <N> --agents <grader keys>`
+3. If `evals/grade.py` is present two levels above the skill folder (plugin or repo install), run it as a final self-check and fix every FAIL:
+   `python3 <skill>/../../evals/grade.py . --source <blueprint>/<source>.md --budget <N> --agents <grader keys>`
 4. **Content review, mandatory.** Review the specs, design and plan against this checklist, using a read-only subagent if available, otherwise yourself line by line. Fix every defect, then re-run steps 1–2:
    - Each requirement is one behaviour (one "shall", no "and" joining two), with a named component and a testable AC.
    - Every AC is concrete; every value it uses is in the requirement or a `policy:` key; it contradicts nothing in the analysis; its `Needs:` lists every other requirement it relies on, none in a later phase.

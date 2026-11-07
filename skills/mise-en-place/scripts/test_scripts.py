@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Tests for generate_register.py and check_links.py, using examples/shortlink as the fixture.
 
-Run: python3 scripts/test_scripts.py
+Run: python3 skills/mise-en-place/scripts/test_scripts.py
 """
 
 import shutil
@@ -12,7 +12,7 @@ import unittest
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-EXAMPLE = HERE.parent / "examples" / "shortlink"
+EXAMPLE = HERE.parents[2] / "examples" / "shortlink"
 REGISTER = HERE / "generate_register.py"
 LINKS = HERE / "check_links.py"
 
