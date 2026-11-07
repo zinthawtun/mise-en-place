@@ -14,7 +14,7 @@ Checks (errors fail the run with exit code 1):
   - code/tests (--scan) that reference unknown or Withdrawn requirement/AC IDs
   - with --check: the register in traceability.md is out of date (nothing is written)
 Warnings (reported, never fail): FRs without a phase, requirements with more than one
-"shall", backlog items that satisfy no requirement, gated Musts with no backlog
+"shall", backlog items that satisfy no requirement or hypothesis, gated Musts with no backlog
 item, gated Musts whose ACs are not referenced by any scanned file.
 If traceability.md does not exist yet (before step 9), the audit still runs and
 nothing is written. Exit code 2 means 02-specs/ is missing, or traceability.md
@@ -33,6 +33,7 @@ MARKER = "## 3. Requirement register"
 ROW = re.compile(r"^\| ((FR|NFR)-([A-Z]{2,5})-(\d{3})) \| (.*)$", re.M)
 FRONT_PHASE = re.compile(r"^phase:\s*(P\d+)\s*$", re.M)
 REQ_REF = re.compile(r"\b((?:FR|NFR)-[A-Z]{2,5}-\d{3})\b")
+HYP_REF = re.compile(r"\bH-\d+\b")
 # Matches AC-RED-001.1 in docs and test_AC_RED_001_1 in test names (no \b: "_" is a word char).
 AC_REF = re.compile(r"(?<![A-Za-z0-9])AC[-_](NFR[-_])?([A-Z]{2,5})[-_](\d{3})[-_.](\d+)")
 BACKLOG_ROW = re.compile(r"^\| ([A-Z][A-Z0-9]*-(\d+)-\d{2}) \|(.*)$", re.M)
@@ -126,7 +127,7 @@ def audit_backlog(backlog: Path, by_id):
         return errors, covered, False
     for m in BACKLOG_ROW.finditer(backlog.read_text(encoding="utf-8")):
         item, item_phase, rest = m.group(1), int(m.group(2)), m.group(3)
-        if not REQ_REF.search(rest):
+        if not REQ_REF.search(rest) and not HYP_REF.search(rest):
             NO_REQ.append(item)
         for rid in REQ_REF.findall(rest):
             req = by_id.get(rid)
@@ -234,7 +235,7 @@ def main() -> int:
     errors += b_errors
     errors += audit_ac_needs(specs, by_id)
     warnings += [f"backlog {i} but it has no AC (a 'Done when' must name existing ACs)" for i in NO_AC]
-    warnings += [f"backlog item satisfies no requirement (project activity?): {i}" for i in NO_REQ]
+    warnings += [f"backlog item satisfies no requirement or hypothesis (project activity?): {i}" for i in NO_REQ]
     warnings += [f"requirement has more than one 'shall' (split it): {r['id']}" for r in live if r["compound"]]
     if has_backlog:
         warnings += [f"gated Must not in backlog: {r['id']}" for r in gated_musts if r["id"] not in covered]

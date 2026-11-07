@@ -10,9 +10,11 @@ Checks (errors fail the run with exit code 1):
   - Must requirements without acceptance criteria in the gated phases (--ac-phases)
   - backlog items that reference unknown IDs, or that are scheduled before the
     phase of the requirement they satisfy
+  - ACs that declare `Needs: FR-…` for a requirement that is unknown or scheduled in a later phase
   - code/tests (--scan) that reference unknown or Withdrawn requirement/AC IDs
   - with --check: the register in traceability.md is out of date (nothing is written)
-Warnings (reported, never fail): FRs without a phase, gated Musts with no backlog
+Warnings (reported, never fail): FRs without a phase, requirements with more than one
+"shall", backlog items that satisfy no requirement or hypothesis, gated Musts with no backlog
 item, gated Musts whose ACs are not referenced by any scanned file.
 If traceability.md does not exist yet (before step 9), the audit still runs and
 nothing is written. Exit code 2 means 02-specs/ is missing, or traceability.md
@@ -31,6 +33,7 @@ MARKER = "## 3. Requirement register"
 ROW = re.compile(r"^\| ((FR|NFR)-([A-Z]{2,5})-(\d{3})) \| (.*)$", re.M)
 FRONT_PHASE = re.compile(r"^phase:\s*(P\d+)\s*$", re.M)
 REQ_REF = re.compile(r"\b((?:FR|NFR)-[A-Z]{2,5}-\d{3})\b")
+HYP_REF = re.compile(r"\bH-\d+\b")
 # Matches AC-RED-001.1 in docs and test_AC_RED_001_1 in test names (no \b: "_" is a word char).
 AC_REF = re.compile(r"(?<![A-Za-z0-9])AC[-_](NFR[-_])?([A-Z]{2,5})[-_](\d{3})[-_.](\d+)")
 BACKLOG_ROW = re.compile(r"^\| ([A-Z][A-Z0-9]*-(\d+)-\d{2}) \|(.*)$", re.M)
@@ -68,10 +71,35 @@ def load_requirements(specs: Path):
             rows.append({
                 "id": rid, "kind": kind, "pri": pri, "phase": phase, "spec": spec.name,
                 "ac": has_ac(text, kind, f"{prefix}-{num}"),
+                "compound": len(re.findall(r"\bshall\b", cells[0] if cells else "", re.I)) > 1,
                 "withdrawn": withdrawn,
                 "status": "Withdrawn" if withdrawn else (status or "—"),
             })
     return rows
+
+
+AC_LINE = re.compile(r"^[\s>*|-]*\**AC-(NFR-)?([A-Z]{2,5})-(\d{3})\.\d+", re.M)
+NEEDS = re.compile(r"Needs:\s*([^\n]*)")
+
+
+def audit_ac_needs(specs: Path, by_id):
+    """An AC may list `Needs: FR-…` for other requirements it relies on; they must exist and not be later-phase."""
+    errors = []
+    for spec in sorted(specs.glob("spec-*.md")):
+        for line in spec.read_text(encoding="utf-8").splitlines():
+            m = AC_LINE.match(line)
+            n = NEEDS.search(line)
+            if not m or not n:
+                continue
+            own = by_id.get(f"{'NFR' if m.group(1) else 'FR'}-{m.group(2)}-{m.group(3)}")
+            for rid in REQ_REF.findall(n.group(1)):
+                dep = by_id.get(rid)
+                if dep is None:
+                    errors.append(f"AC in {spec.name} needs unknown {rid}")
+                elif own and phase_num(own["phase"]) is not None and phase_num(dep["phase"]) is not None \
+                        and phase_num(dep["phase"]) > phase_num(own["phase"]):
+                    errors.append(f"AC of {own['id']} ({own['phase']}) needs {rid} scheduled for {dep['phase']}")
+    return errors
 
 
 def render_register(rows) -> str:
@@ -89,18 +117,26 @@ def render_register(rows) -> str:
     return intro + body
 
 
+NO_REQ: list = []
+NO_AC: list = []
+
+
 def audit_backlog(backlog: Path, by_id):
     errors, covered = [], set()
     if not backlog.is_file():
         return errors, covered, False
     for m in BACKLOG_ROW.finditer(backlog.read_text(encoding="utf-8")):
         item, item_phase, rest = m.group(1), int(m.group(2)), m.group(3)
+        if not REQ_REF.search(rest) and not HYP_REF.search(rest):
+            NO_REQ.append(item)
         for rid in REQ_REF.findall(rest):
             req = by_id.get(rid)
             if req is None:
                 errors.append(f"backlog {item} references unknown {rid}")
                 continue
             covered.add(rid)
+            if not req["withdrawn"] and not req["ac"]:
+                NO_AC.append(f"{item} satisfies {rid}")
             rp = phase_num(req["phase"])
             if rp is not None and item_phase < rp:
                 errors.append(f"backlog {item} (P{item_phase}) satisfies {rid} scheduled for {req['phase']}")
@@ -197,6 +233,10 @@ def main() -> int:
 
     b_errors, covered, has_backlog = audit_backlog(blueprint / "04-plan" / "backlog.md", by_id)
     errors += b_errors
+    errors += audit_ac_needs(specs, by_id)
+    warnings += [f"backlog {i} but it has no AC (a 'Done when' must name existing ACs)" for i in NO_AC]
+    warnings += [f"backlog item satisfies no requirement or hypothesis (project activity?): {i}" for i in NO_REQ]
+    warnings += [f"requirement has more than one 'shall' (split it): {r['id']}" for r in live if r["compound"]]
     if has_backlog:
         warnings += [f"gated Must not in backlog: {r['id']}" for r in gated_musts if r["id"] not in covered]
 

@@ -98,6 +98,18 @@ class RegisterTests(unittest.TestCase):
         self.assertEqual(code, 0, out)
         self.assertIn("WARN  gated Must not in backlog: FR-SEC-001", out)
 
+    def test_backlog_item_satisfying_hypothesis_is_not_flagged(self):
+        code, out = run(REGISTER, cwd=self.root)
+        self.assertEqual(code, 0, out)
+        self.assertNotIn("SL-0-01", out)
+
+    def test_backlog_item_with_no_requirement_or_hypothesis_warns(self):
+        self.edit("04-plan/backlog.md", "| SL-0-01 | Export broken-link tickets for the last 2 months | H-1 |",
+                  "| SL-0-01 | Export broken-link tickets for the last 2 months | Ops |")
+        code, out = run(REGISTER, cwd=self.root)
+        self.assertEqual(code, 0, out)
+        self.assertIn("WARN  backlog item satisfies no requirement or hypothesis (project activity?): SL-0-01", out)
+
     def test_scan_detects_unknown_withdrawn_and_ac_named_tests(self):
         code, out = run(REGISTER, "--scan", "tests", cwd=self.root)
         self.assertNotIn("no AC-named test: FR-RED-001", out)
