@@ -22,6 +22,9 @@ skills for the coding agents that will implement the project.
 copilot plugin install zinthawtun/mise-en-place
 ```
 
+Update or remove the plugin with `copilot plugin update mise-en-place` or
+`copilot plugin uninstall mise-en-place`.
+
 ### Claude Code
 ```text
 /plugin marketplace add zinthawtun/mise-en-place
@@ -29,8 +32,11 @@ copilot plugin install zinthawtun/mise-en-place
 ```
 
 ### Cursor
-Add the plugin from this repository in **Customize → Plugins**. It uses the
-[Agent Plugins](https://agent-plugins.org) manifest at the repository root.
+Clone the repository into Cursor's local plugins folder, then restart Cursor and
+check **Customize**:
+```bash
+git clone https://github.com/zinthawtun/mise-en-place ~/.cursor/plugins/local/mise-en-place
+```
 
 ### Manual (any agent that supports skills)
 Copy [`skills/mise-en-place/`](./skills/mise-en-place/) into your project's
