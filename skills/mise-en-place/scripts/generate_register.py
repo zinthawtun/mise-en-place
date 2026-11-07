@@ -4,6 +4,7 @@
 Usage:
   python3 generate_register.py [--blueprint blueprint] [--root .]
                                [--ac-phases P0,P1] [--scan src tests ...] [--check]
+                               [--budget N]
 
 Checks (errors fail the run with exit code 1):
   - duplicate requirement IDs
@@ -15,21 +16,30 @@ Checks (errors fail the run with exit code 1):
   - with --check: the register in traceability.md is out of date (nothing is written)
 Warnings (reported, never fail): FRs without a phase, requirements with more than one
 "shall", backlog items that satisfy no requirement or hypothesis, gated Musts with no backlog
-item, gated Musts whose ACs are not referenced by any scanned file.
+item, gated Musts whose ACs are not referenced by any scanned file, scanned files skipped
+as too large or not UTF-8, scan paths that do not exist.
 If traceability.md does not exist yet (before step 9), the audit still runs and
-nothing is written. Exit code 2 means 02-specs/ is missing, or traceability.md
-exists without the register marker.
+nothing is written. Writing regenerates everything from the register marker up to the next
+heading; text after that heading is kept. Exit code 2 means a usage or input error:
+02-specs/ is missing, traceability.md lacks the register marker (or has it more than once),
+--ac-phases or --budget is invalid, or a file cannot be read as UTF-8 text.
 Requirement table columns: | ID | Requirement | Pri | Phase | Source | Status? |
 (Status is optional; "Withdrawn" in the Status or Requirement cell retires the row).
 """
 
 import argparse
+import os
 import re
+import shutil
 import sys
+import tempfile
 from collections import Counter
+from collections.abc import Iterable, Iterator
 from pathlib import Path
+from typing import Optional, TypedDict
 
 MARKER = "## 3. Requirement register"
+REGISTER_SECTION = re.compile(r"^" + re.escape(MARKER) + r"[ \t]*$.*?(?=^#{1,6} |\Z)", re.M | re.S)
 ROW = re.compile(r"^\| ((FR|NFR)-([A-Z]{2,5})-(\d{3})) \| (.*)$", re.M)
 FRONT_PHASE = re.compile(r"^phase:\s*(P\d+)\s*$", re.M)
 REQ_REF = re.compile(r"\b((?:FR|NFR)-[A-Z]{2,5}-\d{3})\b")
@@ -40,24 +50,57 @@ BACKLOG_ROW = re.compile(r"^\| ([A-Z][A-Z0-9]*-(\d+)-\d{2}) \|(.*)$", re.M)
 SKIP_DIRS = {".git", "node_modules", "bin", "obj", "dist", "build", "target",
              ".venv", "venv", "__pycache__", ".idea", ".vs", "coverage"}
 MAX_SCAN_BYTES = 1_000_000
+SHALL = re.compile(r"\bshall\b", re.I)
 
 
-def has_ac(text: str, kind: str, key: str) -> bool:
-    if kind == "FR":
-        return re.search(rf"AC-{key}\.\d", text) is not None
-    return re.search(rf"AC-NFR-{key}\.\d|\*\*NFR-{key} AC\*\*", text) is not None
+class Requirement(TypedDict):
+    id: str
+    kind: str
+    pri: str
+    phase: str
+    spec: str
+    ac: bool
+    compound: bool
+    withdrawn: bool
+    status: str
 
 
-def phase_num(phase: str):
-    return int(phase[1:]) if re.fullmatch(r"P\d+", phase or "") else None
+class InputError(Exception):
+    pass
 
 
-def load_requirements(specs: Path):
-    rows = []
+FR_AC = re.compile(r"AC-([A-Z]{2,5}-\d{3})\.\d")
+NFR_AC = re.compile(r"AC-NFR-([A-Z]{2,5}-\d{3})\.\d|\*\*NFR-([A-Z]{2,5}-\d{3}) AC\*\*")
+
+
+def ac_keys(text: str) -> dict[str, set[str]]:
+    """Requirement keys (e.g. RED-001) that have at least one AC in the text, by kind."""
+    return {
+        "FR": set(FR_AC.findall(text)),
+        "NFR": {a or b for a, b in NFR_AC.findall(text)},
+    }
+
+
+def phase_num(phase: Optional[str]) -> Optional[int]:
+    if phase is None or not re.fullmatch(r"P\d+", phase):
+        return None
+    return int(phase[1:])
+
+
+def read_utf8(path: Path) -> str:
+    try:
+        return path.read_text(encoding="utf-8")
+    except UnicodeDecodeError as e:
+        raise InputError(f"{path} is not valid UTF-8: {e.reason}") from e
+
+
+def load_requirements(specs: Path) -> list[Requirement]:
+    rows: list[Requirement] = []
     for spec in sorted(specs.glob("spec-*.md")):
-        text = spec.read_text(encoding="utf-8")
+        text = read_utf8(spec)
         fm = FRONT_PHASE.search(text.split("\n---", 2)[0] if text.startswith("---") else "")
         spec_phase = fm.group(1) if fm else "—"
+        acs = ac_keys(text)
         for m in ROW.finditer(text):
             rid, kind, prefix, num, rest = m.groups()
             cells = [c.strip() for c in rest.split("|")]
@@ -66,12 +109,17 @@ def load_requirements(specs: Path):
                 phase = cells[2] if len(cells) > 2 and phase_num(cells[2]) is not None else "—"
             else:
                 phase = spec_phase
-            status = cells[4] if kind == "FR" and len(cells) > 4 else (cells[2] if kind == "NFR" and len(cells) > 2 else "")
+            if kind == "FR" and len(cells) > 4:
+                status = cells[4]
+            elif kind == "NFR" and len(cells) > 2:
+                status = cells[2]
+            else:
+                status = ""
             withdrawn = "withdrawn" in (cells[0] + " " + status).lower()
             rows.append({
                 "id": rid, "kind": kind, "pri": pri, "phase": phase, "spec": spec.name,
-                "ac": has_ac(text, kind, f"{prefix}-{num}"),
-                "compound": len(re.findall(r"\bshall\b", cells[0] if cells else "", re.I)) > 1,
+                "ac": f"{prefix}-{num}" in acs[kind],
+                "compound": len(SHALL.findall(cells[0] if cells else "")) > 1,
                 "withdrawn": withdrawn,
                 "status": "Withdrawn" if withdrawn else (status or "—"),
             })
@@ -82,27 +130,32 @@ AC_LINE = re.compile(r"^[\s>*|-]*\**AC-(NFR-)?([A-Z]{2,5})-(\d{3})\.\d+", re.M)
 NEEDS = re.compile(r"Needs:\s*([^\n]*)")
 
 
-def audit_ac_needs(specs: Path, by_id):
-    """An AC may list `Needs: FR-…` for other requirements it relies on; they must exist and not be later-phase."""
-    errors = []
+def audit_ac_needs(specs: Path, by_id: dict[str, Requirement]) -> list[str]:
+    """An AC may list `Needs: FR-…` for other requirements it relies on.
+
+    They must exist and must not be scheduled in a later phase than the AC's own requirement.
+    """
+    errors: list[str] = []
     for spec in sorted(specs.glob("spec-*.md")):
-        for line in spec.read_text(encoding="utf-8").splitlines():
+        for line in read_utf8(spec).splitlines():
             m = AC_LINE.match(line)
             n = NEEDS.search(line)
             if not m or not n:
                 continue
             own = by_id.get(f"{'NFR' if m.group(1) else 'FR'}-{m.group(2)}-{m.group(3)}")
+            own_phase = phase_num(own["phase"]) if own else None
             for rid in REQ_REF.findall(n.group(1)):
                 dep = by_id.get(rid)
                 if dep is None:
                     errors.append(f"AC in {spec.name} needs unknown {rid}")
-                elif own and phase_num(own["phase"]) is not None and phase_num(dep["phase"]) is not None \
-                        and phase_num(dep["phase"]) > phase_num(own["phase"]):
+                    continue
+                dep_phase = phase_num(dep["phase"])
+                if own and own_phase is not None and dep_phase is not None and dep_phase > own_phase:
                     errors.append(f"AC of {own['id']} ({own['phase']}) needs {rid} scheduled for {dep['phase']}")
     return errors
 
 
-def render_register(rows) -> str:
+def render_register(rows: list[Requirement]) -> str:
     intro = (
         f"{MARKER}\n\n"
         "AC ✓ means at least one Given/When/Then acceptance criterion exists. "
@@ -117,18 +170,39 @@ def render_register(rows) -> str:
     return intro + body
 
 
-NO_REQ: list = []
-NO_AC: list = []
+def splice_register(trace: str, rows: list[Requirement]) -> str:
+    """Regenerate the register section; headings after it are kept."""
+    m = REGISTER_SECTION.search(trace)
+    if m is None:
+        raise InputError(f"no '{MARKER}' heading to replace")
+    head, tail = trace[:m.start()], trace[m.end():]
+    return head + render_register(rows) + ("\n" if tail else "") + tail
 
 
-def audit_backlog(backlog: Path, by_id):
-    errors, covered = [], set()
+def write_atomic(path: Path, text: str) -> None:
+    """Write via a temp file so an interrupted run cannot truncate the register."""
+    fd, tmp = tempfile.mkstemp(dir=path.parent, prefix=f".{path.name}.")
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as fh:
+            fh.write(text)
+        if path.exists():
+            shutil.copymode(path, tmp)
+        os.replace(tmp, path)
+    except BaseException:
+        Path(tmp).unlink(missing_ok=True)
+        raise
+
+
+def audit_backlog(backlog: Path, by_id: dict[str, Requirement]) -> tuple[list[str], list[str], set[str], bool]:
+    errors: list[str] = []
+    warnings: list[str] = []
+    covered: set[str] = set()
     if not backlog.is_file():
-        return errors, covered, False
-    for m in BACKLOG_ROW.finditer(backlog.read_text(encoding="utf-8")):
+        return errors, warnings, covered, False
+    for m in BACKLOG_ROW.finditer(read_utf8(backlog)):
         item, item_phase, rest = m.group(1), int(m.group(2)), m.group(3)
         if not REQ_REF.search(rest) and not HYP_REF.search(rest):
-            NO_REQ.append(item)
+            warnings.append(f"backlog item satisfies no requirement or hypothesis (project activity?): {item}")
         for rid in REQ_REF.findall(rest):
             req = by_id.get(rid)
             if req is None:
@@ -136,33 +210,44 @@ def audit_backlog(backlog: Path, by_id):
                 continue
             covered.add(rid)
             if not req["withdrawn"] and not req["ac"]:
-                NO_AC.append(f"{item} satisfies {rid}")
+                warnings.append(
+                    f"backlog {item} satisfies {rid} but it has no AC (a 'Done when' must name existing ACs)")
             rp = phase_num(req["phase"])
             if rp is not None and item_phase < rp:
                 errors.append(f"backlog {item} (P{item_phase}) satisfies {rid} scheduled for {req['phase']}")
-    return errors, covered, True
+    return errors, warnings, covered, True
 
 
-def iter_scan_files(paths, exclude: Path):
+def iter_scan_files(paths: Iterable[str], exclude: Path) -> Iterator[Path]:
     for p in paths:
-        p = Path(p).resolve()
-        if p.is_file():
-            yield p
-            continue
-        for f in p.rglob("*"):
-            if not f.is_file() or f.stat().st_size > MAX_SCAN_BYTES:
+        base = Path(p).resolve()
+        for f in (base.rglob("*") if base.is_dir() else [base]):
+            if not f.is_file() or exclude in f.parents:
                 continue
-            if any(part in SKIP_DIRS for part in f.parts) or exclude in f.parents:
+            # Match skip dirs relative to the scan root, not the absolute path.
+            rel_dirs = f.relative_to(base).parts[:-1] if base.is_dir() else ()
+            if any(part in SKIP_DIRS for part in rel_dirs):
                 continue
             yield f
 
 
-def audit_code(paths, exclude: Path, by_id):
-    errors, ac_seen = [], set()
+def audit_code(
+    paths: Iterable[str], exclude: Path, by_id: dict[str, Requirement]
+) -> tuple[list[str], list[str], set[str]]:
+    errors: list[str] = []
+    warnings: list[str] = []
+    ac_seen: set[str] = set()
     for f in iter_scan_files(paths, exclude):
         try:
+            if f.stat().st_size > MAX_SCAN_BYTES:
+                warnings.append(f"{f}: not scanned, larger than {MAX_SCAN_BYTES} bytes")
+                continue
             text = f.read_text(encoding="utf-8")
-        except (UnicodeDecodeError, OSError):
+        except UnicodeDecodeError:
+            warnings.append(f"{f}: not scanned, not UTF-8 text")
+            continue
+        except OSError as e:
+            warnings.append(f"{f}: not scanned, {e.strerror or e}")
             continue
         refs = set(REQ_REF.findall(text))
         for nfr, prefix, num, _ in AC_REF.findall(text):
@@ -175,38 +260,46 @@ def audit_code(paths, exclude: Path, by_id):
                 errors.append(f"{f}: references unknown {rid}")
             elif req["withdrawn"]:
                 errors.append(f"{f}: references Withdrawn {rid}")
-    return errors, ac_seen
+    return errors, warnings, ac_seen
 
 
-def main() -> int:
-    ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    ap.add_argument("--blueprint", default="blueprint", help="blueprint folder name (default: blueprint)")
-    ap.add_argument("--root", default=".", help="repository root (default: cwd)")
-    ap.add_argument("--ac-phases", default="P0,P1",
-                    help="phases whose Musts must have ACs (default: P0,P1; empty to disable)")
-    ap.add_argument("--scan", nargs="*", default=[], metavar="PATH",
-                    help="code/test paths to scan for requirement and AC IDs")
-    ap.add_argument("--check", action="store_true",
-                    help="do not write; fail if the register is out of date (for CI)")
-    ap.add_argument("--budget", type=int, default=0,
-                    help="fail if live (non-withdrawn) requirements exceed N (0 = report only)")
-    args = ap.parse_args()
+def nonneg_int(value: str) -> int:
+    try:
+        n = int(value)
+    except ValueError:
+        raise argparse.ArgumentTypeError(f"expected a whole number, got {value!r}") from None
+    if n < 0:
+        raise argparse.ArgumentTypeError("must be 0 or more")
+    return n
 
+
+def phase_list(value: str) -> set[str]:
+    phases = {p.strip() for p in value.split(",") if p.strip()}
+    bad = sorted(p for p in phases if phase_num(p) is None)
+    if bad:
+        raise argparse.ArgumentTypeError(f"not a phase (expected P0, P1, ...): {', '.join(bad)}")
+    return phases
+
+
+def run(args: argparse.Namespace) -> int:
     root = Path(args.root).resolve()
-    blueprint = root / args.blueprint
+    blueprint = (root / args.blueprint).resolve()
     specs, trace_path = blueprint / "02-specs", blueprint / "traceability.md"
     if not specs.is_dir():
         print(f"Expected {specs}/", file=sys.stderr)
         return 2
-    trace = trace_path.read_text(encoding="utf-8") if trace_path.is_file() else None
-    if trace is not None and MARKER not in trace:
-        print(f"Marker '{MARKER}' not found in {trace_path}", file=sys.stderr)
-        return 2
+    trace = read_utf8(trace_path) if trace_path.is_file() else None
+    if trace is not None:
+        found = len(REGISTER_SECTION.findall(trace))
+        if found != 1:
+            print(f"Expected one '{MARKER}' heading in {trace_path}, found {found}", file=sys.stderr)
+            return 2
 
     rows = load_requirements(specs)
     by_id = {r["id"]: r for r in rows}
-    gated = {p.strip() for p in args.ac_phases.split(",") if p.strip()}
+    gated = args.ac_phases
     errors, warnings = [], []
+    warnings += [f"scan path not found, not scanned: {s}" for s in args.scan if not Path(s).exists()]
 
     if trace is None:
         if args.check:
@@ -214,11 +307,10 @@ def main() -> int:
         else:
             warnings.append(f"{trace_path.name} not found: audit only, register not written (normal before step 9)")
     elif args.check:
-        new_trace = trace.split(MARKER)[0] + render_register(rows)
-        if new_trace != trace:
+        if splice_register(trace, rows) != trace:
             errors.append(f"register in {trace_path} is out of date; rerun without --check")
     else:
-        trace_path.write_text(trace.split(MARKER)[0] + render_register(rows), encoding="utf-8")
+        write_atomic(trace_path, splice_register(trace, rows))
 
     dupes = sorted(i for i, c in Counter(r["id"] for r in rows).items() if c > 1)
     errors += [f"duplicate ID {d}" for d in dupes]
@@ -231,18 +323,18 @@ def main() -> int:
     later = [r for r in live if r["pri"] == "M" and not r["ac"] and r["phase"] not in gated]
     warnings += [f"FR without phase: {r['id']}" for r in live if r["kind"] == "FR" and r["phase"] == "—"]
 
-    b_errors, covered, has_backlog = audit_backlog(blueprint / "04-plan" / "backlog.md", by_id)
+    b_errors, b_warnings, covered, has_backlog = audit_backlog(blueprint / "04-plan" / "backlog.md", by_id)
     errors += b_errors
+    warnings += b_warnings
     errors += audit_ac_needs(specs, by_id)
-    warnings += [f"backlog {i} but it has no AC (a 'Done when' must name existing ACs)" for i in NO_AC]
-    warnings += [f"backlog item satisfies no requirement or hypothesis (project activity?): {i}" for i in NO_REQ]
     warnings += [f"requirement has more than one 'shall' (split it): {r['id']}" for r in live if r["compound"]]
     if has_backlog:
         warnings += [f"gated Must not in backlog: {r['id']}" for r in gated_musts if r["id"] not in covered]
 
     if args.scan:
-        c_errors, ac_seen = audit_code(args.scan, blueprint, by_id)
+        c_errors, c_warnings, ac_seen = audit_code(args.scan, blueprint, by_id)
         errors += c_errors
+        warnings += c_warnings
         warnings += [f"gated Must with no AC-named test: {r['id']}" for r in gated_musts if r["id"] not in ac_seen]
 
     print(f"Requirements: {len(rows)}  (with AC: {sum(r['ac'] for r in rows)}, withdrawn: {len(rows) - len(live)})")
@@ -255,6 +347,26 @@ def main() -> int:
         print(f"ERROR {e}")
     print(f"Result: {'FAIL' if errors else 'OK'} ({len(errors)} errors, {len(warnings)} warnings)")
     return 1 if errors else 0
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
+    ap.add_argument("--blueprint", default="blueprint", help="blueprint folder name (default: blueprint)")
+    ap.add_argument("--root", default=".", help="repository root (default: cwd)")
+    ap.add_argument("--ac-phases", type=phase_list, default="P0,P1",
+                    help="phases whose Musts must have ACs (default: P0,P1; empty to disable)")
+    ap.add_argument("--scan", nargs="*", default=[], metavar="PATH",
+                    help="code/test paths to scan for requirement and AC IDs")
+    ap.add_argument("--check", action="store_true",
+                    help="do not write; fail if the register is out of date (for CI)")
+    ap.add_argument("--budget", type=nonneg_int, default=0,
+                    help="fail if live (non-withdrawn) requirements exceed N (0 = report only)")
+    args = ap.parse_args()
+    try:
+        return run(args)
+    except (OSError, InputError) as e:
+        print(f"error: {e}", file=sys.stderr)
+        return 2
 
 
 if __name__ == "__main__":

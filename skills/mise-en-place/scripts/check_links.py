@@ -8,6 +8,7 @@ Exit code 1 if any link is broken.
 import argparse
 import re
 import sys
+from collections.abc import Iterable, Iterator
 from pathlib import Path
 from urllib.parse import unquote
 
@@ -17,7 +18,7 @@ INLINE = re.compile(r"`[^`\n]*`")
 SKIP_DIRS = {".git", "node_modules", ".venv", "venv"}
 
 
-def files(targets):
+def files(targets: Iterable[str]) -> Iterator[Path]:
     for t in targets:
         p = Path(t)
         if p.is_file() and p.suffix == ".md":

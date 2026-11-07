@@ -10,6 +10,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from typing import Union
 
 HERE = Path(__file__).resolve().parent
 EXAMPLE = HERE.parents[2] / "examples" / "shortlink"
@@ -17,22 +18,20 @@ REGISTER = HERE / "generate_register.py"
 LINKS = HERE / "check_links.py"
 
 
-def run(script, *args, cwd):
-    p = subprocess.run([sys.executable, str(script), *args], cwd=cwd, capture_output=True, text=True)
+def run(script: Path, *args: str, cwd: Union[str, Path]) -> tuple[int, str]:
+    p = subprocess.run([sys.executable, str(script), *args], cwd=cwd, capture_output=True, text=True, check=False)
     return p.returncode, p.stdout + p.stderr
 
 
 class RegisterTests(unittest.TestCase):
     def setUp(self):
         self.tmp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.tmp)
         shutil.copytree(EXAMPLE, self.tmp / "p")
         self.root = self.tmp / "p"
         self.bp = self.root / "blueprint"
 
-    def tearDown(self):
-        shutil.rmtree(self.tmp)
-
-    def edit(self, rel, old, new):
+    def edit(self, rel: str, old: str, new: str) -> None:
         f = self.bp / rel
         text = f.read_text(encoding="utf-8")
         self.assertIn(old, text)
@@ -76,11 +75,12 @@ class RegisterTests(unittest.TestCase):
 
     def test_nfr_takes_phase_from_spec_front_matter(self):
         self.edit("02-specs/spec-redirect.md", "- **AC-NFR-RED-001.1**", "- **Removed**")
-        code, out = run(REGISTER, cwd=self.root)
+        _, out = run(REGISTER, cwd=self.root)
         self.assertIn("Must without AC: NFR-RED-001 (P1", out)
 
     def test_backlog_phase_mismatch_and_unknown_id_fail(self):
-        self.edit("04-plan/backlog.md", "| FR-SEC-001, FR-SEC-002 |", "| FR-SEC-001, FR-SEC-002, FR-RED-003, FR-XYZ-999 |")
+        self.edit("04-plan/backlog.md", "| FR-SEC-001, FR-SEC-002 |",
+                  "| FR-SEC-001, FR-SEC-002, FR-RED-003, FR-XYZ-999 |")
         code, out = run(REGISTER, cwd=self.root)
         self.assertEqual(code, 1, out)
         self.assertIn("SL-1-03 (P1) satisfies FR-RED-003 scheduled for P2", out)
