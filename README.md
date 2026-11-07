@@ -8,6 +8,28 @@ The blueprint captures intent, requirements, architecture and decisions,
 roadmap, validation, and traceability. It can also generate instructions and
 skills for the coding agents that will implement the project.
 
+## Install
+
+### GitHub Copilot CLI
+```bash
+copilot plugin install zinthawtun/mise-en-place
+```
+
+### Claude Code
+```text
+/plugin marketplace add zinthawtun/mise-en-place
+/plugin install mise-en-place@mise-en-place
+```
+
+### Cursor
+Add the plugin from this repository in **Customize → Plugins**. It uses the
+[Agent Plugins](https://agent-plugins.org) manifest at the repository root.
+
+### Manual (any agent that supports skills)
+Copy [`skills/mise-en-place/`](./skills/mise-en-place/) into your project's
+skills folder, for example `.github/skills/`, `.claude/skills/`,
+`.cursor/skills/` or `.agents/skills/`.
+
 ## When to use it
 
 Use the skill to:
@@ -82,16 +104,21 @@ A typical output folder contains:
 
 The skill can also create always-on and path-scoped instructions, project
 skills, and a reviewer agent for supported coding-agent environments. See
-[`references/customisations.md`](./references/customisations.md) for target
+[`references/customisations.md`](./skills/mise-en-place/references/customisations.md) for target
 paths and merge rules.
 
 ## Repository contents
 
-- [`SKILL.md`](./SKILL.md) — skill instructions and workflow.
-- [`references/`](./references/) — vocabulary, procedures, templates, modes,
-  and agent customisation guidance.
-- [`scripts/`](./scripts/) — Python 3.9+ standard-library tools for generating
-  the traceability register and checking links.
+- [`skills/mise-en-place/`](./skills/mise-en-place/) — the skill:
+  - [`SKILL.md`](./skills/mise-en-place/SKILL.md) — instructions and workflow.
+  - [`references/`](./skills/mise-en-place/references/) — vocabulary,
+    procedures, templates, modes, and agent customisation guidance.
+  - [`scripts/`](./skills/mise-en-place/scripts/) — Python 3.9+
+    standard-library tools for generating the traceability register and
+    checking links.
+- [`plugin.json`](./plugin.json), [`.claude-plugin/`](./.claude-plugin/),
+  [`.cursor-plugin/`](./.cursor-plugin/) — plugin manifests for Copilot CLI,
+  Claude Code, and Cursor.
 - [`examples/shortlink/`](./examples/shortlink/) — a complete worked example
   with a brief, blueprint, tests, and Copilot customisations.
 - [`evals/`](./evals/) — trigger cases and scenarios for evaluating the skill.
@@ -101,11 +128,17 @@ paths and merge rules.
 No third-party Python packages are needed. From the repository root, run:
 
 ```bash
-python3 scripts/test_scripts.py
+python3 skills/mise-en-place/scripts/test_scripts.py
 python3 evals/grade.py examples/shortlink --source blueprint/brief.md \
   --budget 20 --agents copilot
-python3 scripts/check_links.py examples/shortlink/blueprint examples/shortlink/.github
+python3 skills/mise-en-place/scripts/check_links.py examples/shortlink/blueprint examples/shortlink/.github
 ```
 
 See [`evals/README.md`](./evals/README.md) for running and grading additional
-scenarios.
+scenarios. When releasing, bump `version` in all three manifests and
+`.claude-plugin/marketplace.json`, and add an entry to
+[`CHANGELOG.md`](./CHANGELOG.md).
+
+## License
+
+[MIT](./LICENSE)

@@ -1,0 +1,31 @@
+name: check
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ["3.9", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Script tests
+        run: python3 skills/mise-en-place/scripts/test_scripts.py
+      - name: Grade bundled example
+        run: |
+          tmp="$RUNNER_TEMP/shortlink"
+          cp -r examples/shortlink "$tmp"
+          git -C "$tmp" init -q
+          git -C "$tmp" add -A
+          git -C "$tmp" -c user.name=ci -c user.email=ci@example.com commit -qm baseline
+          python3 evals/grade.py "$tmp" --source blueprint/brief.md --budget 20 --agents copilot
+      - name: Links
+        run: python3 skills/mise-en-place/scripts/check_links.py examples/shortlink/blueprint examples/shortlink/.github
+      - name: Manifests are valid JSON
+        run: for f in plugin.json .claude-plugin/*.json .cursor-plugin/*.json; do python3 -m json.tool "$f" > /dev/null; done

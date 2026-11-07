@@ -26,8 +26,8 @@ A complete, deliberately small mise-en-place output for a one-page brief. Use it
 ## Try the scripts
 ```bash
 cd examples/shortlink
-python3 ../../scripts/generate_register.py --budget 20 --scan tests   # OK, with warnings for Musts that have no AC-named test yet
-python3 ../../scripts/check_links.py blueprint .github
+python3 ../../skills/mise-en-place/scripts/generate_register.py --budget 20 --scan tests   # OK, with warnings for Musts that have no AC-named test yet
+python3 ../../skills/mise-en-place/scripts/check_links.py blueprint .github
 ```
 
 `.github/` shows the full Copilot output: always-on and path-scoped instructions, the four project skills (with both scripts copied into the audit skill) and the read-only reviewer agent. Other target agents get the same content at the paths in the skill's `references/customisations.md`.

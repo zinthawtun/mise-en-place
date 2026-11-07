@@ -1,0 +1,23 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "mise-en-place",
+  "version": "1.0.0",
+  "description": "Spec-driven planning skill: turns a brief, PRD or requirements document into a traceable project blueprint (EARS specs, ADRs, roadmap, validation, traceability) plus agent customisations.",
+  "author": {
+    "name": "Zin Thaw Tun",
+    "url": "https://github.com/zinthawtun"
+  },
+  "homepage": "https://github.com/zinthawtun/mise-en-place",
+  "repository": "https://github.com/zinthawtun/mise-en-place",
+  "license": "MIT",
+  "keywords": [
+    "spec-driven-development",
+    "sdd",
+    "requirements",
+    "ears",
+    "adr",
+    "traceability",
+    "planning",
+    "skill"
+  ]
+}

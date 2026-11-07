@@ -18,10 +18,10 @@ h| [references/vocabulary.md](./references/vocabulary.md) | **The only file to r
 | [references/templates.md](./references/templates.md) | Read only the template for the file you are about to write |
 | [references/customisations.md](./references/customisations.md) | Step 10 only: per-agent paths and merge rules |
 | [references/modes.md](./references/modes.md) | Step 1 only, if the mode is `Existing codebase` or `Change` |
-| [examples/shortlink/README.md](./examples/shortlink/README.md) | Optional: expected depth and tone. Match its rigour, not its content |
+| [examples/shortlink/README.md](../../examples/shortlink/README.md) | Optional, if present (plugin or repo install): expected depth and tone. Match its rigour, not its content |
 | [scripts/](./scripts/) | Python 3.9+ standard library: [generate_register.py](./scripts/generate_register.py) (steps 5, 9, 11), [check_links.py](./scripts/check_links.py) (step 11) |
 
-Maintainers only: [scripts/test_scripts.py](./scripts/test_scripts.py) and [evals/](./evals/README.md).
+Maintainers only: [scripts/test_scripts.py](./scripts/test_scripts.py) and [evals/](../../evals/README.md) (repo only).
 
 ## Modes
 Choose after the inventory in step 1 and tell the user: `New` runs all steps; `Existing codebase` runs all steps plus [modes.md](./references/modes.md) additions; `Change` follows [modes.md](./references/modes.md) instead of steps 1–8; `Resume` continues from the first incomplete step (see [procedure.md](./references/procedure.md#step-1-intake)).
@@ -57,7 +57,7 @@ Work layer by layer: read [vocabulary.md](./references/vocabulary.md) first, the
 | 8 | Validation | validation-design.md | Mandatory if the source states a hypothesis |
 | 9 | Traceability | traceability.md + register | `generate_register.py --blueprint <blueprint> --budget <N> [--scan src tests]` exits 0 |
 | 10 | Customisations | Per target agent | Merge, never overwrite; copy both scripts into the audit skill |
-| 11 | Verify | | `check_links.py` 0 broken; register exits 0; `evals/grade.py` (if present) all PASS |
+| 11 | Verify | | `check_links.py` 0 broken; register exits 0; `../../evals/grade.py` (if present) all PASS |
 | 12 | Report | | Mode, files, counts vs budget, defaults accepted, blocking OQs, health commands. Do not commit unless asked |
 
 ## Rules
