@@ -30,6 +30,21 @@ also specify a technology stack and blueprint folder:
 <path to requirement document> [stack] [blueprint folder]
 ```
 
+### Example prompts
+
+| Mode | Prompt |
+|---|---|
+| New | `Use mise-en-place on blueprint/brief.md. Stack: Python 3.13 + PostgreSQL.` |
+| New, with approval gates | `Use mise-en-place on blueprint/brief.md with approval stops.` |
+| New, without stops | `Use mise-en-place on blueprint/brief.md. Run straight through without approval stops.` |
+| From a PRD | `Here's our PRD for the new billing service. Break it down into specs, architecture and a phased plan before we write code.` |
+| Existing codebase | `This repo already has code but no specs. Use mise-en-place with docs/vision.md as the source.` |
+| Change | `Using mise-en-place, add this to Shortlink: creators can delete their own links. Update everything affected.` |
+| Resume | `Continue the mise-en-place blueprint in blueprint/ from where it stopped.` |
+
+The skill should **not** be used for prompts such as
+`Implement backlog item SL-1-02` or `Fix the null reference exception in OrderService.cs`.
+
 The skill first inventories the source and existing project, then selects the
 appropriate mode:
 
