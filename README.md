@@ -152,6 +152,23 @@ scenarios. When releasing, bump `version` in all three manifests,
 `.claude-plugin/marketplace.json`, and `.github/plugin/marketplace.json`, and
 add an entry to [`CHANGELOG.md`](./CHANGELOG.md).
 
+## Origin
+
+Before agentic development, the first job on a project was setting up the development environment. With AI-assisted development there's a second setup job: preparing the environment for the agents. While improving my own agentic SDLC, I wrote a requirements document for an application and broke it down with GitHub Copilot. That document drew on the requirements and design practices listed in the Pantry. The breakdown became the blueprint structure, and this skill captures that process so it can be repeated.
+
+## Pantry
+
+The ingredients this skill builds on. Each entry says what was borrowed; the combination and the tooling around it are original to this repository.
+
+| Source | Borrowed idea | Where it appears |
+|---|---|---|
+| [EARS, Easy Approach to Requirements Syntax](https://doi.org/10.1109/RE.2009.9) (Alistair Mavin et al., Rolls-Royce, IEEE RE 2009; [overview](https://alistairmavin.com/ears/)) | Requirement sentence templates | `02-specs/` |
+| [Architecture Decision Records](https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions) (Michael Nygard, "Documenting Architecture Decisions", 2011) | One short record per hard-to-reverse decision | `03-design/adr/` |
+| [obra/superpowers](https://github.com/obra/superpowers) | Test-first implementation discipline packaged as a skill (failing tests first, minimum code, verify before done) | Generated `spec-driven-implementation` skill |
+| [anthropics/skills, skill-creator](https://github.com/anthropics/skills/tree/main/skills/skill-creator) | Eval loop for skills: `evals/evals.json` with should-trigger cases and graded expectations, scripted checks where possible, then revise | [`evals/`](./evals/README.md) |
+
+These are influences on ideas and workflow. No text or code was copied from them.
+
 ## License
 
 [MIT](./LICENSE)
