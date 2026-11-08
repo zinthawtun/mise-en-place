@@ -15,6 +15,7 @@ from typing import Union
 HERE = Path(__file__).resolve().parent
 EXAMPLE = HERE.parents[2] / "examples" / "shortlink"
 REGISTER = HERE / "generate_register.py"
+BUNDLED_REGISTER = EXAMPLE / ".github" / "skills" / "blueprint-traceability-audit" / "generate_register.py"
 LINKS = HERE / "check_links.py"
 
 
@@ -147,6 +148,18 @@ class RegisterTests(unittest.TestCase):
         self.edit("traceability.md", "## 3. Requirement register", "## 3. Register")
         code, _ = run(REGISTER, cwd=self.root)
         self.assertEqual(code, 2)
+
+    def test_indented_headings_preserve_following_content(self):
+        trace = (self.bp / "traceability.md").read_text(encoding="utf-8")
+        for script in (REGISTER, self.root / BUNDLED_REGISTER.relative_to(EXAMPLE)):
+            for heading in ("  ## 4. Notes", "##\t4. Notes"):
+                with self.subTest(script=script, heading=heading):
+                    (self.bp / "traceability.md").write_text(
+                        trace + f"\n{heading}\nHandwritten content.\n", encoding="utf-8")
+                    code, out = run(script, cwd=self.root)
+                    self.assertEqual(code, 0, out)
+                    updated = (self.bp / "traceability.md").read_text(encoding="utf-8")
+                    self.assertIn(f"{heading}\nHandwritten content.", updated)
 
 
 class LinkTests(unittest.TestCase):
