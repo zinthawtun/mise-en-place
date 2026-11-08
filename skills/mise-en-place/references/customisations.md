@@ -99,7 +99,7 @@ applyTo: "<globs for source and test files>"
 description: "<Stack> conventions for <Project>."
 ---
 # <Stack> conventions
-## Structure and dependencies — mirror architecture §3 rules
+## Structure and dependencies — mirror architecture section 3 rules
 ## Code style — language idioms, nullability, async, immutability, no magic policy numbers
 ## Security — secrets source, trust boundaries from the security spec
 ## Tests — framework, naming after AC IDs, integration test infra
@@ -144,7 +144,7 @@ description: Record a <Project> architecture decision as an ADR in <blueprint>/0
 2. Take the next number `ADR-NNNN-<kebab-title>.md`.
 3. Write Context (forces, IDs, evidence), Decision (active voice) and Consequences (positive, negative, follow-ups).
 4. Mark any superseded ADR (change its Status line only). For an extension that doesn't contradict, add `Amends: ADR-XXXX` instead.
-5. Update the index, architecture §6 and traceability §2.
+5. Update the index, architecture section 6 and traceability section 2.
 ## Template
 <paste the ADR template from the blueprint's existing ADRs, so the project skill stays self-contained>
 ```

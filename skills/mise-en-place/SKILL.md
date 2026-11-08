@@ -13,7 +13,7 @@ Produces a **project blueprint**, the single source of truth for *why*, *what*, 
 ## Resources
 | File | Read when |
 |---|---|
-h| [references/vocabulary.md](./references/vocabulary.md) | **The only file to read before writing.** Every ID format, priority, phase, status, gate value and term. Use its values exactly |
+| [references/vocabulary.md](./references/vocabulary.md) | **The only file to read before writing.** Every ID format, priority, phase, status, gate value and term. Use its values exactly |
 | [references/procedure.md](./references/procedure.md) | Read only the section for the current step, when you reach it |
 | [references/templates.md](./references/templates.md) | Read only the template for the file you are about to write |
 | [references/customisations.md](./references/customisations.md) | Step 10 only: per-agent paths and merge rules |
@@ -40,14 +40,14 @@ Per target agent:       always-on + path-scoped instructions · 4 project skills
 ```
 
 ## Procedure
-Work layer by layer: read [vocabulary.md](./references/vocabulary.md) first, then read each reference only when you reach the step that needs it, and write each file as soon as its layer is decided. Do not read everything before writing. After every step, update `Mise-en-place step` in the blueprint README. Set gates per [vocabulary.md](./references/vocabulary.md#gates). Use subagents, if available, for independent work such as one spec per capability or the step 11 review. If Python is unavailable, apply the script checks by hand and say so.
+Work layer by layer: read [vocabulary.md](./references/vocabulary.md) first, then read each reference only when you reach the step that needs it, and write each file as soon as its layer is decided. Do not read everything before writing. After every step, update `Mise-en-place step` in the blueprint README. Set gates per [vocabulary.md](./references/vocabulary.md#gates). Use subagents, if available, for independent work: one subagent per capability spec in step 5 (give each the vocabulary, its capability rows and the budget share), and one for the step 11 review. Merge their output yourself and run the scripts once afterwards; without subagents, do the work sequentially. If Python is unavailable, apply the script checks by hand and say so.
 
 | # | Step | Output | Key rule |
 |---|---|---|---|
 | 1 | Intake | README with status | Read the **whole** source; stop if it is missing or not a requirement; never overwrite customisations |
 | 2 | Clarify | Decisions table | **One** round, only unsettled shape-changing questions, each with a default |
 | 3 | Analysis | requirement-analysis.md, glossary.md, budget N | Classify every statement; security capability when data, credentials, networks or AI are involved; D-n only if wrong or unsafe without it |
-| **A** | Gate A | | Approve capabilities, D-n, risks, OQs |
+| **A** | Gate A | | Approve capabilities, D-n, risks, OQs. If rejected, revise that layer and re-present; do not start the next step. If the user cannot be reached, proceed on defaults and flag the gate for review ([procedure.md](./references/procedure.md#step-2-clarification)) |
 | 4 | Intent | intent.md | Goals with measures; non-goals with rationale |
 | 5 | Specs | spec-*.md | EARS, named component, no implementation nouns; ACs for P0–P1 Musts; live ≤ N; OQ defaults never add requirements. Run `generate_register.py --blueprint <blueprint> --budget <N>` |
 | **B** | Gate B | | Approve specs against the budget |
@@ -57,8 +57,8 @@ Work layer by layer: read [vocabulary.md](./references/vocabulary.md) first, the
 | 8 | Validation | validation-design.md | Mandatory if the source states a hypothesis |
 | 9 | Traceability | traceability.md + register | `generate_register.py --blueprint <blueprint> --budget <N> [--scan src tests]` exits 0 |
 | 10 | Customisations | Per target agent | Merge, never overwrite; copy both scripts into the audit skill |
-| 11 | Verify | | `check_links.py` 0 broken; register exits 0; `../../evals/grade.py` (if present) all PASS |
-| 12 | Report | | Mode, files, counts vs budget, defaults accepted, blocking OQs, health commands. Do not commit unless asked |
+| 11 | Verify | | `check_links.py` 0 broken; register exits 0; if `../../evals/grade.py` exists, run the command in [procedure.md](./references/procedure.md#step-11-verify) and get all PASS |
+| 12 | Report | | Mode, files, counts vs budget, defaults accepted, blocking OQs, health commands. **Do not commit unless asked** |
 
 ## Rules
 - **Never edit the source document** (or a CR's quoted request). Interpretation lives in analysis, specs and ADRs.
@@ -80,3 +80,4 @@ Work layer by layer: read [vocabulary.md](./references/vocabulary.md) first, the
 - [ ] Every P0–P1 Must is in the backlog; every phase has an exit criterion
 - [ ] Customisations exist for each target agent, with existing content kept verbatim
 - [ ] The README status shows step 12, the gate outcomes and every clarification decision
+- [ ] Nothing committed unless the user asked

@@ -4,7 +4,7 @@ title: Redirect
 status: Agreed
 version: 1.0.0
 phase: P1
-source: ../brief.md §2
+source: ../brief.md section 2
 ---
 
 # Redirect
@@ -15,9 +15,9 @@ Send visitors from an alias to its target URL, quickly.
 ## 4. Functional requirements
 | ID | Requirement | Pri | Phase | Source | Status |
 |---|---|---|---|---|---|
-| FR-RED-001 | When a visitor requests an active alias, the Redirector shall redirect to the link's target URL. | M | P1 | §2 b2 | Agreed |
+| FR-RED-001 | When a visitor requests an active alias, the Redirector shall redirect to the link's target URL. | M | P1 | section 2 b2 | Agreed |
 | FR-RED-002 | If a visitor requests an unknown or expired alias, then the Redirector shall return a not-found page. | M | P1 | D-1 | Agreed |
-| FR-RED-003 | When the Redirector serves a redirect, it shall increment that link's click count without recording the visitor's identity. | M | P2 | §2 b5 | Draft |
+| FR-RED-003 | When the Redirector serves a redirect, it shall increment that link's click count without recording the visitor's identity. | M | P2 | section 2 b5 | Draft |
 
 ## 5. Non-functional requirements
 | ID | Requirement | Pri | Status |

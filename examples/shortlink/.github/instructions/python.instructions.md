@@ -3,7 +3,7 @@ applyTo: "src/**/*.py,tests/**/*.py,migrations/**"
 description: "Python 3.13 + PostgreSQL conventions for Shortlink."
 ---
 # Python 3.13 + PostgreSQL conventions
-## Structure and dependencies (architecture §3)
+## Structure and dependencies (architecture section 3)
 - `shortlink.domain` never imports web-framework or database modules (architecture test enforces it).
 - Redirect code never calls SSO; redirects are anonymous.
 - Only the Link Service writes to `link`; the Redirector only reads it and increments `click_count`.

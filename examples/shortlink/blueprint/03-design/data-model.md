@@ -9,7 +9,7 @@ CREATE TABLE link (
   created_by   text NOT NULL,
   created_at   timestamptz NOT NULL DEFAULT now(),
   expires_at   timestamptz NOT NULL,
-  click_count  bigint NOT NULL DEFAULT 0   -- ➕ derived from §2 b5
+  click_count  bigint NOT NULL DEFAULT 0   -- ➕ derived from section 2 b5
 );
 ```
 ## 4. Indexes

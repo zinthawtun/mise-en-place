@@ -94,6 +94,8 @@ Every date is written `DD-MM-YYYY` (for example, `07-11-2026`). Never use anothe
 | `skipped (run straight through)` | The user asked to run straight through |
 | `skipped (user unreachable)` | Autonomous or headless run, and the user did not ask to run straight through |
 
+A rejected gate stays `⏳ awaiting approval`: revise that layer, re-present it, and do not start the next step until it is approved.
+
 "Run straight through" skips the gates but **not** the step 2 questions.
 
 ## Decision status (README decisions table, intent constraints table)
