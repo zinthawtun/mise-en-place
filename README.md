@@ -154,7 +154,7 @@ add an entry to [`CHANGELOG.md`](./CHANGELOG.md).
 
 ## Origin
 
-Before agentic development, the first job on a project was setting up the development environment. With modern tooling that job has become easy, but AI-assisted development adds a second setup job: preparing the environment for the agents. While working on some personal projects and improving my own agentic SDLC, I wrote a requirements document for an application and broke it down with GitHub Copilot. That document drew on the requirements and design practices listed in the Pantry. The breakdown became the blueprint structure, and this skill captures that process so it can be repeated.
+Before agentic development, the first job on a project was setting up the development environment. With modern AI tooling that job has become easy, but AI-assisted development adds a second setup job: preparing the environment for the agents. While working on some personal projects and improving my own agentic SDLC, I wrote a requirements document for an application and broke it down with GitHub Copilot. That document drew on the requirements and design practices listed in the Pantry. The breakdown became the blueprint structure, and this skill captures that process so it can be repeated.
 
 ## Pantry
 
