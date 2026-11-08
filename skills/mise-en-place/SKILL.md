@@ -1,6 +1,6 @@
 ---
 name: mise-en-place
-description: "Spec-driven planning for the layout stage. Turns a business requirement, PRD, brief, research report or discovery notes into a traceable project blueprint: intent, requirement analysis, EARS specs with stable IDs and Given/When/Then acceptance criteria, C4 architecture and ADRs, phased roadmap and backlog, validation design and a script-checked traceability register, plus agent customisations (Copilot, Claude Code, Cursor, AGENTS.md) that keep later work aligned. Use before writing code to kick off or scope a greenfield project, epic or major initiative; to adopt spec-driven development (SDD) on an existing codebase; to break a requirements document down into specs, design and plan; or to add, change or resume scope in an existing blueprint. Not for implementing backlog items, writing a single ADR, or reviewing an existing design."
+description: "Spec-driven planning before code. Turns a requirement, PRD, brief or research report into a traceable blueprint (intent, EARS specs with acceptance criteria, architecture and ADRs, roadmap, validation, traceability register) plus coding-agent customisations. Use to kick off or scope a greenfield project or major initiative, adopt spec-driven development on an existing codebase, break a requirements document into specs, design and plan, or add, change or resume scope in a blueprint. Not for implementing backlog items, writing a single ADR, or reviewing an existing design."
 argument-hint: "<path to requirement document> [stack] [blueprint folder]"
 ---
 
@@ -19,7 +19,7 @@ h| [references/vocabulary.md](./references/vocabulary.md) | **The only file to r
 | [references/customisations.md](./references/customisations.md) | Step 10 only: per-agent paths and merge rules |
 | [references/modes.md](./references/modes.md) | Step 1 only, if the mode is `Existing codebase` or `Change` |
 | [examples/shortlink/README.md](../../examples/shortlink/README.md) | Optional, if present (plugin or repo install): expected depth and tone. Match its rigour, not its content |
-| [scripts/](./scripts/) | Python 3.9+ standard library: [generate_register.py](./scripts/generate_register.py) (steps 5, 9, 11), [check_links.py](./scripts/check_links.py) (step 11) |
+| [scripts/](./scripts/) | Python 3.12+ standard library: [generate_register.py](./scripts/generate_register.py) (steps 5, 9, 11), [check_links.py](./scripts/check_links.py) (step 11) |
 
 Maintainers only: [scripts/test_scripts.py](./scripts/test_scripts.py) and [evals/](../../evals/README.md) (repo only).
 
@@ -36,7 +36,7 @@ Choose after the inventory in step 1 and tell the user: `New` runs all steps; `E
   04-plan/              roadmap.md · backlog.md
   05-validation/        validation-design.md
   changes/              CR-NNN-*.md (Change mode only)
-Per target agent:       always-on + path-scoped instructions · 4 project skills · spec-reviewer agent
+Per target agent (Copilot, Claude Code, Cursor, AGENTS.md): always-on + path-scoped instructions · 4 project skills · spec-reviewer agent
 ```
 
 ## Procedure
