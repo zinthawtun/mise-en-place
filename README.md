@@ -154,11 +154,20 @@ add an entry to [`CHANGELOG.md`](./CHANGELOG.md).
 
 ## Origin
 
-Before agentic development, the first job on a project was setting up the development environment. With modern AI tooling that job has become easy, but AI-assisted development adds a second setup job: preparing the environment for the agents. While working on some personal projects and improving my own agentic SDLC, I wrote a requirements document for an application and broke it down with GitHub Copilot. That document drew on the requirements and design practices listed in the Pantry. The breakdown became the blueprint structure, and this skill captures that process so it can be repeated.
+Before agentic development, the first job on a project was setting up the
+development environment. AI tooling has made that easy, but it adds a second
+job: preparing the environment for the agents.
+
+While working on some personal projects and improving my own agentic SDLC, I
+wrote a requirements document for an application and broke it down with GitHub
+Copilot. That document drew on the requirements and design practices listed in
+the Pantry. The breakdown became the blueprint structure, and this skill
+captures that process so it can be repeated.
 
 ## Pantry
 
-The ingredients this skill builds on. Each entry says what was borrowed; the combination and the tooling around it are original to this repository.
+The ingredients this skill builds on. Each entry says what was borrowed; the
+combination and the tooling around it are original to this repository.
 
 | Source | Borrowed idea | Where it appears |
 |---|---|---|
@@ -166,7 +175,12 @@ The ingredients this skill builds on. Each entry says what was borrowed; the com
 | [Architecture Decision Records](https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions) (Michael Nygard, "Documenting Architecture Decisions", 2011) | One short record per hard-to-reverse decision | `03-design/adr/` |
 | [anthropics/skills, skill-creator](https://github.com/anthropics/skills/tree/main/skills/skill-creator) | Eval loop for skills: `evals/evals.json` with should-trigger cases and graded expectations, scripted checks where possible, then revise | [`evals/`](./evals/README.md) |
 
-These are influences on ideas and workflow. The skill also reflects practices picked up from many open-source repositories on GitHub, with no single one as a source; thanks to everyone who shares their work. If I have missed a source that should be credited, please [open an issue](https://github.com/zinthawtun/mise-en-place/issues) and I will add it.
+These are influences on ideas and workflow. The skill also reflects practices
+picked up from many open-source repositories on GitHub, with no single one as a
+source; thanks to everyone who shares their work. If I have missed a source
+that should be credited, please
+[open an issue](https://github.com/zinthawtun/mise-en-place/issues) and I will
+add it.
 
 ## License
 
