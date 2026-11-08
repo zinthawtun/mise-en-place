@@ -1,18 +1,18 @@
 # Traceability Matrix
-Regenerate §3 with the traceability-audit skill. Do not hand-edit it.
+Regenerate section 3 with the traceability-audit skill. Do not hand-edit it.
 
 ## 1. Source → intent
 | Source theme | Intent element |
 |---|---|
-| §1 Problem | Problem statement, G-2 |
-| §3 Success | H-1, primary success measure |
-| §2 Privacy | NG-2, principle 3 |
+| section 1 Problem | Problem statement, G-2 |
+| section 3 Success | H-1, primary success measure |
+| section 2 Privacy | NG-2, principle 3 |
 
 ## 2. Spec → design → plan
 | Spec | Design artifacts | ADRs | Phases | Backlog |
 |---|---|---|---|---|
 | [SPEC-LNK](./02-specs/spec-links.md) | [contracts](./03-design/http-contracts.md), [data model](./03-design/data-model.md) | ADR-0002 | P1–P2 | SL-1-01, SL-2-01 |
-| [SPEC-RED](./02-specs/spec-redirect.md) | [architecture §4](./03-design/architecture.md) | ADR-0002, ADR-0003 | P1–P2 | SL-1-02, SL-2-01 |
+| [SPEC-RED](./02-specs/spec-redirect.md) | [architecture section 4](./03-design/architecture.md) | ADR-0002, ADR-0003 | P1–P2 | SL-1-02, SL-2-01 |
 | [SPEC-SEC](./02-specs/spec-security.md) | [contracts](./03-design/http-contracts.md) | ADR-0003 | P1 | SL-1-03 |
 
 ## 3. Requirement register

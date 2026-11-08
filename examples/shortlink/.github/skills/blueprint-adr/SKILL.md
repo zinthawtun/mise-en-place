@@ -7,7 +7,7 @@ description: Record a Shortlink architecture decision as an ADR in blueprint/03-
 2. Take the next number `ADR-NNNN-<kebab-title>.md`.
 3. Write Context (forces, IDs, evidence), Decision (active voice) and Consequences (positive, negative, follow-ups).
 4. Mark any superseded ADR (change its Status line only). For a non-contradicting extension, add `Amends: ADR-XXXX`.
-5. Update the index, architecture §6 and traceability §2.
+5. Update the index, architecture section 6 and traceability section 2.
 ## Template
 ```markdown
 # ADR-NNNN: <Decision>

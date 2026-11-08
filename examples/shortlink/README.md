@@ -9,9 +9,9 @@ A complete, deliberately small mise-en-place output for a one-page brief. Use it
 ## Judgement calls worth copying
 | Where | Call | Why |
 |---|---|---|
-| [analysis §1](./blueprint/01-analysis/requirement-analysis.md) | "About 6 characters", "under 50 ms" and "a year" became `policy:` values | They are proposals, not mandates |
-| [analysis §4](./blueprint/01-analysis/requirement-analysis.md) | D-1 (unknown alias) and D-2 (alias conflict) were derived | The brief implies them but never states them |
-| [intent §5](./blueprint/00-intent/intent.md) | NG-2 "no per-user analytics" | Turns a privacy line into an enforceable scope limit |
+| [analysis section 1](./blueprint/01-analysis/requirement-analysis.md) | "About 6 characters", "under 50 ms" and "a year" became `policy:` values | They are proposals, not mandates |
+| [analysis section 4](./blueprint/01-analysis/requirement-analysis.md) | D-1 (unknown alias) and D-2 (alias conflict) were derived | The brief implies them but never states them |
+| [intent section 5](./blueprint/00-intent/intent.md) | NG-2 "no per-user analytics" | Turns a privacy line into an enforceable scope limit |
 | [spec-security](./blueprint/02-specs/spec-security.md) | FR-SEC-003 is kept as `Withdrawn`, not deleted | IDs are never reused |
 | [spec-redirect](./blueprint/02-specs/spec-redirect.md) | FR-RED-003 is a P2 Must whose AC is written before its phase | Only P0–P1 Musts are gated, so a later-phase Must can be specified early |
 | [roadmap](./blueprint/04-plan/roadmap.md) | P0 is "Measure" with no code | The hypothesis needs a baseline first |

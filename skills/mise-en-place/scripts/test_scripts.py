@@ -47,7 +47,7 @@ class RegisterTests(unittest.TestCase):
 
     def test_check_fails_when_register_is_stale(self):
         run(REGISTER, cwd=self.root)
-        self.edit("02-specs/spec-links.md", "| S | P2 | §2 b6 |", "| C | P2 | §2 b6 |")
+        self.edit("02-specs/spec-links.md", "| S | P2 | section 2 b6 |", "| C | P2 | section 2 b6 |")
         code, out = run(REGISTER, "--check", cwd=self.root)
         self.assertEqual(code, 1, out)
         self.assertIn("out of date", out)
@@ -139,7 +139,7 @@ class RegisterTests(unittest.TestCase):
         reg = (self.bp / "traceability.md").read_text(encoding="utf-8")
         self.assertIn("| FR-LNK-004 | S | P2 | Draft |", reg)
         self.assertIn("| FR-SEC-003 | M | P1 | Withdrawn |", reg)
-        self.edit("02-specs/spec-links.md", "| M | P1 | §2 b1 | Agreed |", "| M | P1 | §2 b1 | Withdrawn |")
+        self.edit("02-specs/spec-links.md", "| M | P1 | section 2 b1 | Agreed |", "| M | P1 | section 2 b1 | Withdrawn |")
         self.edit("02-specs/spec-links.md", "- **AC-LNK-001.1**", "- **Removed**")
         code, out = run(REGISTER, cwd=self.root)
         self.assertEqual(code, 0, out)

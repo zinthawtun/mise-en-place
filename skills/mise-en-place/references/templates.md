@@ -194,7 +194,7 @@ Specs define observable behaviour. Classes, libraries and schemas belong in desi
 | Optional | **Where** `<feature>`, the `<component>` shall `<response>`. |
 
 ### Attributes
-Priority M/S/C/W · Phase P0–Pn · Status Draft → Agreed → Implemented → Verified / Withdrawn · Source (§ or D-n)
+Priority M/S/C/W · Phase P0–Pn · Status Draft → Agreed → Implemented → Verified / Withdrawn · Source (section or D-n)
 
 ### Acceptance criteria
 `AC-<PREFIX>-<NNN>.<n>` in Given/When/Then form. Required for a Must to move from Draft to Agreed. Test names include the AC ID.
@@ -212,7 +212,7 @@ title: <Capability>
 status: Draft
 version: 0.1.0
 phase: P<n>
-source: ../<source>.md §<section>
+source: ../<source>.md section <section>
 ---
 
 # <Capability>
@@ -224,7 +224,7 @@ source: ../<source>.md §<section>
 ## 4. Functional requirements
 | ID | Requirement | Pri | Phase | Source | Status |
 |---|---|---|---|---|---|
-| FR-<PREFIX>-001 | When <trigger>, the <Component> shall <response>. | M | P1 | §<section> | Draft |
+| FR-<PREFIX>-001 | When <trigger>, the <Component> shall <response>. | M | P1 | section <section> | Draft |
 ## 5. Non-functional requirements
 | ID | Requirement | Pri | Status |
 |---|---|---|---|
@@ -344,7 +344,7 @@ Principle: build the smallest measurable system first.
 
 ```markdown
 # Traceability Matrix
-Regenerate §3 with the traceability-audit skill. Do not hand-edit it.
+Regenerate section 3 with the traceability-audit skill. Do not hand-edit it.
 
 ## 1. Source → intent
 | Source theme | Intent element |

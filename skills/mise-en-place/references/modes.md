@@ -57,7 +57,7 @@ Code exists, but there is no blueprint. The blueprint must describe **intended**
 
 ### B1. Intake additions (step 1)
 1. Inventory the code: entry points, modules, persistence, external integrations, tests, build and test commands, and existing customisation files.
-2. Write a short **Current state** section in `requirement-analysis.md` (§0): a table of `Area | What exists | Evidence (path) | Gaps against the source`.
+2. Write a short **Current state** section in `requirement-analysis.md` (section 0): a table of `Area | What exists | Evidence (path) | Gaps against the source`.
 3. Behaviour that exists in code but is **not** in the source becomes a derived requirement (`D-n`, "derived from existing code: path") **only if the owner should keep it**. Otherwise it becomes an open question: "Keep, change or remove <behaviour>?"
 
 ### B2. Clarification (step 2)
@@ -66,7 +66,7 @@ Skip questions the code already settles, such as the stack. Record those answers
 ### B3. Specs (step 5)
 - Write requirements for the **intended** behaviour from the source and the approved D-n, in the same way as for a new project.
 - Set Status from evidence:
-  - `Implemented`: code exists that appears to satisfy the requirement. Put the path in the `Source` cell after the source reference, for example `§2 b1; impl: src/notes/store.py`.
+  - `Implemented`: code exists that appears to satisfy the requirement. Put the path in the `Source` cell after the source reference, for example `section 2 b1; impl: src/notes/store.py`.
   - `Verified`: a test also proves at least one of its ACs. Name the test in the AC line.
   - `Draft` or `Agreed`: not built yet.
 - Partial implementations stay `Agreed`. Record the gap in the Current state table.
