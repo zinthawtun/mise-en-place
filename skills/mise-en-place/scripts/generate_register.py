@@ -39,7 +39,7 @@ from pathlib import Path
 from typing import Optional, TypedDict
 
 MARKER = "## 3. Requirement register"
-REGISTER_SECTION = re.compile(r"^" + re.escape(MARKER) + r"[ \t]*$.*?(?=^#{1,6} |\Z)", re.M | re.S)
+REGISTER_SECTION = re.compile(r"^" + re.escape(MARKER) + r"[ \t]*$.*?(?=^ {0,3}#{1,6}(?:[ \t]|$)|\Z)", re.M | re.S)
 ROW = re.compile(r"^\| ((FR|NFR)-([A-Z]{2,5})-(\d{3})) \| (.*)$", re.M)
 FRONT_PHASE = re.compile(r"^phase:\s*(P\d+)\s*$", re.M)
 REQ_REF = re.compile(r"\b((?:FR|NFR)-[A-Z]{2,5}-\d{3})\b")
