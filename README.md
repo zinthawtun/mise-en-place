@@ -164,7 +164,6 @@ The ingredients this skill builds on. Each entry says what was borrowed; the com
 |---|---|---|
 | [EARS, Easy Approach to Requirements Syntax](https://doi.org/10.1109/RE.2009.9) (Alistair Mavin et al., Rolls-Royce, IEEE RE 2009; [overview](https://alistairmavin.com/ears/)) | Requirement sentence templates | `02-specs/` |
 | [Architecture Decision Records](https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions) (Michael Nygard, "Documenting Architecture Decisions", 2011) | One short record per hard-to-reverse decision | `03-design/adr/` |
-| [obra/superpowers](https://github.com/obra/superpowers) | Test-first implementation discipline packaged as a skill (failing tests first, minimum code, verify before done) | Generated `spec-driven-implementation` skill |
 | [anthropics/skills, skill-creator](https://github.com/anthropics/skills/tree/main/skills/skill-creator) | Eval loop for skills: `evals/evals.json` with should-trigger cases and graded expectations, scripted checks where possible, then revise | [`evals/`](./evals/README.md) |
 
 These are influences on ideas and workflow. No text or code was copied from them.
