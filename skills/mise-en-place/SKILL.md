@@ -19,7 +19,7 @@ h| [references/vocabulary.md](./references/vocabulary.md) | **The only file to r
 | [references/customisations.md](./references/customisations.md) | Step 10 only: per-agent paths and merge rules |
 | [references/modes.md](./references/modes.md) | Step 1 only, if the mode is `Existing codebase` or `Change` |
 | [examples/shortlink/README.md](../../examples/shortlink/README.md) | Optional, if present (plugin or repo install): expected depth and tone. Match its rigour, not its content |
-| [scripts/](./scripts/) | Python 3 standard library: [generate_register.py](./scripts/generate_register.py) (steps 5, 9, 11), [check_links.py](./scripts/check_links.py) (step 11) |
+| [scripts/](./scripts/) | Python 3.12+ standard library: [generate_register.py](./scripts/generate_register.py) (steps 5, 9, 11), [check_links.py](./scripts/check_links.py) (step 11) |
 
 Maintainers only: [scripts/test_scripts.py](./scripts/test_scripts.py) and [evals/](../../evals/README.md) (repo only).
 
