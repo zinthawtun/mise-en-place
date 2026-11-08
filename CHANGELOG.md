@@ -27,6 +27,11 @@ policy. No change to the blueprint output format.
   templates, and Shortlink example. The traceability register generator is
   unaffected.
 
+### Documentation
+- The README has an Origin section explaining how the skill came about, and a
+  Pantry section crediting EARS, Architecture Decision Records, and Anthropic's
+  skill-creator.
+
 ## 1.0.0 (2026-11-07)
 
 Initial release of mise-en-place, a spec-driven planning skill that turns
