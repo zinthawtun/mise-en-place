@@ -58,7 +58,7 @@ def main() -> int:
     ap.add_argument("--scan", nargs="*", default=[])
     ap.add_argument("--budget", type=int, default=0,
                     help="max live requirements (skills/mise-en-place/references/vocabulary.md: "
-                         "2 x source mandates + derived, capped at 20; 0 = report only)")
+                         "2 x source mandates + derived; capped at 20 for a one-page brief (about 40 for a 10-page document); 0 = report only)")
     ap.add_argument("--frozen", nargs="*", default=[],
                     help="existing paths that must be unchanged and gain no files (Existing-codebase mode)")
     args = ap.parse_args()
