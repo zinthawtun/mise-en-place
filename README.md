@@ -166,7 +166,7 @@ The ingredients this skill builds on. Each entry says what was borrowed; the com
 | [Architecture Decision Records](https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions) (Michael Nygard, "Documenting Architecture Decisions", 2011) | One short record per hard-to-reverse decision | `03-design/adr/` |
 | [anthropics/skills, skill-creator](https://github.com/anthropics/skills/tree/main/skills/skill-creator) | Eval loop for skills: `evals/evals.json` with should-trigger cases and graded expectations, scripted checks where possible, then revise | [`evals/`](./evals/README.md) |
 
-These are influences on ideas and workflow. No text or code was copied from them.
+These are influences on ideas and workflow. 
 
 ## License
 
