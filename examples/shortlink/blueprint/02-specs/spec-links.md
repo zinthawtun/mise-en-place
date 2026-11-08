@@ -27,6 +27,7 @@ Let staff turn long URLs into short links.
 - **AC-LNK-001.1**: *Given* a signed-in creator, *when* they submit `https://intranet/a/very/long/path`, *then* they receive a link whose alias has 6 characters from `[a-z0-9]`.
 - **AC-LNK-002.1**: *Given* alias `q3plan` is free, *when* a creator requests it, *then* the link uses `q3plan`.
 - **AC-LNK-003.1**: *Given* `q3plan` points to URL A, *when* another creator requests `q3plan` for URL B, *then* the request is rejected as a conflict and `q3plan` still points to A.
+- **AC-LNK-004.1**: *Given* a link is created without an expiry, *when* creation completes, *then* its expiry is 365 days after creation.
 
 ## 7. Policy values
 - `policy:alias.length` = 6

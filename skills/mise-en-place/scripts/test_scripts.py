@@ -10,29 +10,29 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from typing import Union
 
 HERE = Path(__file__).resolve().parent
 EXAMPLE = HERE.parents[2] / "examples" / "shortlink"
 REGISTER = HERE / "generate_register.py"
+BUNDLED_REGISTER = EXAMPLE / ".github" / "skills" / "blueprint-traceability-audit" / "generate_register.py"
 LINKS = HERE / "check_links.py"
 
 
-def run(script, *args, cwd):
-    p = subprocess.run([sys.executable, str(script), *args], cwd=cwd, capture_output=True, text=True)
+def run(script: Path, *args: str, cwd: Union[str, Path]) -> tuple[int, str]:
+    p = subprocess.run([sys.executable, str(script), *args], cwd=cwd, capture_output=True, text=True, check=False)
     return p.returncode, p.stdout + p.stderr
 
 
 class RegisterTests(unittest.TestCase):
     def setUp(self):
         self.tmp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.tmp)
         shutil.copytree(EXAMPLE, self.tmp / "p")
         self.root = self.tmp / "p"
         self.bp = self.root / "blueprint"
 
-    def tearDown(self):
-        shutil.rmtree(self.tmp)
-
-    def edit(self, rel, old, new):
+    def edit(self, rel: str, old: str, new: str) -> None:
         f = self.bp / rel
         text = f.read_text(encoding="utf-8")
         self.assertIn(old, text)
@@ -76,11 +76,12 @@ class RegisterTests(unittest.TestCase):
 
     def test_nfr_takes_phase_from_spec_front_matter(self):
         self.edit("02-specs/spec-redirect.md", "- **AC-NFR-RED-001.1**", "- **Removed**")
-        code, out = run(REGISTER, cwd=self.root)
+        _, out = run(REGISTER, cwd=self.root)
         self.assertIn("Must without AC: NFR-RED-001 (P1", out)
 
     def test_backlog_phase_mismatch_and_unknown_id_fail(self):
-        self.edit("04-plan/backlog.md", "| FR-SEC-001, FR-SEC-002 |", "| FR-SEC-001, FR-SEC-002, FR-RED-003, FR-XYZ-999 |")
+        self.edit("04-plan/backlog.md", "| FR-SEC-001, FR-SEC-002 |",
+                  "| FR-SEC-001, FR-SEC-002, FR-RED-003, FR-XYZ-999 |")
         code, out = run(REGISTER, cwd=self.root)
         self.assertEqual(code, 1, out)
         self.assertIn("SL-1-03 (P1) satisfies FR-RED-003 scheduled for P2", out)
@@ -97,6 +98,18 @@ class RegisterTests(unittest.TestCase):
         code, out = run(REGISTER, cwd=self.root)
         self.assertEqual(code, 0, out)
         self.assertIn("WARN  gated Must not in backlog: FR-SEC-001", out)
+
+    def test_backlog_item_satisfying_hypothesis_is_not_flagged(self):
+        code, out = run(REGISTER, cwd=self.root)
+        self.assertEqual(code, 0, out)
+        self.assertNotIn("SL-0-01", out)
+
+    def test_backlog_item_with_no_requirement_or_hypothesis_warns(self):
+        self.edit("04-plan/backlog.md", "| SL-0-01 | Export broken-link tickets for the last 2 months | H-1 |",
+                  "| SL-0-01 | Export broken-link tickets for the last 2 months | Ops |")
+        code, out = run(REGISTER, cwd=self.root)
+        self.assertEqual(code, 0, out)
+        self.assertIn("WARN  backlog item satisfies no requirement or hypothesis (project activity?): SL-0-01", out)
 
     def test_scan_detects_unknown_withdrawn_and_ac_named_tests(self):
         code, out = run(REGISTER, "--scan", "tests", cwd=self.root)
@@ -135,6 +148,18 @@ class RegisterTests(unittest.TestCase):
         self.edit("traceability.md", "## 3. Requirement register", "## 3. Register")
         code, _ = run(REGISTER, cwd=self.root)
         self.assertEqual(code, 2)
+
+    def test_indented_headings_preserve_following_content(self):
+        trace = (self.bp / "traceability.md").read_text(encoding="utf-8")
+        for script in (REGISTER, self.root / BUNDLED_REGISTER.relative_to(EXAMPLE)):
+            for heading in ("  ## 4. Notes", "##\t4. Notes"):
+                with self.subTest(script=script, heading=heading):
+                    (self.bp / "traceability.md").write_text(
+                        trace + f"\n{heading}\nHandwritten content.\n", encoding="utf-8")
+                    code, out = run(script, cwd=self.root)
+                    self.assertEqual(code, 0, out)
+                    updated = (self.bp / "traceability.md").read_text(encoding="utf-8")
+                    self.assertIn(f"{heading}\nHandwritten content.", updated)
 
 
 class LinkTests(unittest.TestCase):

@@ -24,10 +24,10 @@ AC ✓ means at least one Given/When/Then acceptance criterion exists. **Must** 
 | FR-LNK-001 | M | P1 | Agreed | [spec-links.md](./02-specs/spec-links.md) | ✓ |
 | FR-LNK-002 | S | P1 | Agreed | [spec-links.md](./02-specs/spec-links.md) | ✓ |
 | FR-LNK-003 | M | P1 | Agreed | [spec-links.md](./02-specs/spec-links.md) | ✓ |
-| FR-LNK-004 | S | P2 | Draft | [spec-links.md](./02-specs/spec-links.md) |  |
+| FR-LNK-004 | S | P2 | Draft | [spec-links.md](./02-specs/spec-links.md) | ✓ |
 | FR-RED-001 | M | P1 | Agreed | [spec-redirect.md](./02-specs/spec-redirect.md) | ✓ |
 | FR-RED-002 | M | P1 | Agreed | [spec-redirect.md](./02-specs/spec-redirect.md) | ✓ |
-| FR-RED-003 | M | P2 | Draft | [spec-redirect.md](./02-specs/spec-redirect.md) |  |
+| FR-RED-003 | M | P2 | Draft | [spec-redirect.md](./02-specs/spec-redirect.md) | ✓ |
 | NFR-RED-001 | M | P1 | Agreed | [spec-redirect.md](./02-specs/spec-redirect.md) | ✓ |
 | FR-SEC-001 | M | P1 | Agreed | [spec-security.md](./02-specs/spec-security.md) | ✓ |
 | FR-SEC-002 | M | P1 | Agreed | [spec-security.md](./02-specs/spec-security.md) | ✓ |

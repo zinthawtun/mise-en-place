@@ -28,6 +28,7 @@ Send visitors from an alias to its target URL, quickly.
 - **AC-RED-001.1**: *Given* active alias `q3plan` → `https://intranet/x`, *when* a visitor opens `/q3plan`, *then* the response is a redirect to `https://intranet/x`.
 - **AC-RED-002.1**: *Given* alias `old1` expired yesterday, *when* a visitor opens `/old1`, *then* the response is the not-found page.
 - **AC-NFR-RED-001.1**: *Given* 10,000 active links and 200 requests per second for 5 minutes, *when* latency is measured, *then* p95 ≤ 50 ms.
+- **AC-RED-003.1**: *Given* active alias `q3plan` with 0 clicks, *when* a visitor opens `/q3plan`, *then* its click count becomes 1 and no visitor identity is stored with the click.
 
 ## 7. Policy values
 - `policy:redirect.p95_ms` = 50

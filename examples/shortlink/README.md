@@ -4,7 +4,7 @@ A complete, deliberately small mise-en-place output for a one-page brief. Use it
 
 | Input | Output |
 |---|---|
-| [blueprint/brief.md](./blueprint/brief.md), about 20 lines, 7 mandates | 3 capabilities · 2 derived · 11 requirements (1 withdrawn), within the 8–20 budget · 8 with ACs · 3 ADRs · 4 phases |
+| [blueprint/brief.md](./blueprint/brief.md), about 20 lines, 7 mandates | 3 capabilities · 2 derived · 11 requirements (1 withdrawn), within the 8–20 budget · 10 with ACs · 3 ADRs · 4 phases |
 
 ## Judgement calls worth copying
 | Where | Call | Why |
@@ -13,7 +13,7 @@ A complete, deliberately small mise-en-place output for a one-page brief. Use it
 | [analysis §4](./blueprint/01-analysis/requirement-analysis.md) | D-1 (unknown alias) and D-2 (alias conflict) were derived | The brief implies them but never states them |
 | [intent §5](./blueprint/00-intent/intent.md) | NG-2 "no per-user analytics" | Turns a privacy line into an enforceable scope limit |
 | [spec-security](./blueprint/02-specs/spec-security.md) | FR-SEC-003 is kept as `Withdrawn`, not deleted | IDs are never reused |
-| [spec-redirect](./blueprint/02-specs/spec-redirect.md) | FR-RED-003 is a P2 Must with no AC yet | Allowed: only P0–P1 Musts are gated |
+| [spec-redirect](./blueprint/02-specs/spec-redirect.md) | FR-RED-003 is a P2 Must whose AC is written before its phase | Only P0–P1 Musts are gated, so a later-phase Must can be specified early |
 | [roadmap](./blueprint/04-plan/roadmap.md) | P0 is "Measure" with no code | The hypothesis needs a baseline first |
 | [ADR-0003](./blueprint/03-design/adr/ADR-0003-auth-on-create-only.md) | Auth on create only, with the trade-off recorded | Hard to reverse; links to the risk it accepts |
 

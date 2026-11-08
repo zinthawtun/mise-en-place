@@ -14,4 +14,4 @@
 ## P2+ (epics)
 | ID | Item | Satisfies | Done when |
 |---|---|---|---|
-| SL-2-01 | Default expiry and click counts | FR-LNK-004, FR-RED-003 | ACs written and passing |
+| SL-2-01 | Default expiry and click counts | FR-LNK-004, FR-RED-003 | AC-LNK-004.1 and AC-RED-003.1 pass |

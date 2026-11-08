@@ -34,9 +34,18 @@ LAYERS = ["README.md", "00-intent/intent.md", "01-analysis/requirement-analysis.
           "05-validation/validation-design.md", "traceability.md"]
 
 
-def run(cmd, cwd):
-    p = subprocess.run(cmd, cwd=cwd, capture_output=True, text=True)
+def run(cmd: list[str], cwd: Path) -> tuple[int, str]:
+    p = subprocess.run(cmd, cwd=cwd, capture_output=True, text=True, check=False)
     return p.returncode, p.stdout + p.stderr
+
+
+def last_line(text: str) -> str:
+    lines = text.strip().splitlines()
+    return lines[-1] if lines else ""
+
+
+def has_content(path: Path) -> bool:
+    return path.is_file() or (path.is_dir() and any(f.is_file() for f in path.rglob("*")))
 
 
 def main() -> int:
@@ -48,46 +57,44 @@ def main() -> int:
     ap.add_argument("--libs", default=",".join(DEFAULT_LIBS))
     ap.add_argument("--scan", nargs="*", default=[])
     ap.add_argument("--budget", type=int, default=0,
-                    help="max live requirements (skills/mise-en-place/SKILL.md: ~2 x source mandates + derived; 0 = report only)")
+                    help="max live requirements (skills/mise-en-place/SKILL.md: "
+                         "~2 x source mandates + derived; 0 = report only)")
     ap.add_argument("--frozen", nargs="*", default=[],
                     help="existing paths that must be unchanged and gain no files (Existing-codebase mode)")
     args = ap.parse_args()
 
     ws = Path(args.workspace).resolve()
     bp = ws / args.blueprint
-    results = []
+    results: list[tuple[str, bool, str]] = []
 
-    def check(name, ok, detail=""):
+    def check(name: str, ok: object, detail: str = "") -> None:
         results.append((name, bool(ok), detail))
 
-    code, out = run(["git", "diff", "--quiet", "HEAD", "--", args.source], ws)
+    code, _ = run(["git", "diff", "--quiet", "HEAD", "--", args.source], ws)
     check("source document unchanged", code == 0, "" if code == 0 else "differs from HEAD")
 
     for path in args.frozen:
         _, changed = run(["git", "status", "--porcelain", "--untracked-files=all", "--", path], ws)
         check(f"{path} untouched", not changed.strip(), "; ".join(changed.split("\n")[:3]))
 
-    missing = [l for l in LAYERS if not (bp / l).is_file()]
+    missing = [layer for layer in LAYERS if not (bp / layer).is_file()]
     check("all blueprint layers exist", not missing, ", ".join(missing))
 
     specs = sorted((bp / "02-specs").glob("spec-*.md"))
     check("at least one spec", specs, f"{len(specs)} specs")
     spec_text = {s.name: s.read_text(encoding="utf-8") for s in specs}
 
-    req_rows = [(n, l) for n, t in spec_text.items() for l in t.splitlines()
-                if re.match(r"^\| (FR|NFR)-[A-Z]{2,5}-\d{3} \|", l)]
-    system_subj = [f"{n}: {l[:60]}" for n, l in req_rows if re.search(r"\bthe system shall\b", l, re.I)]
+    req_rows = [(n, line) for n, t in spec_text.items() for line in t.splitlines()
+                if re.match(r"^\| (FR|NFR)-[A-Z]{2,5}-\d{3} \|", line)]
+    system_subj = [f"{n}: {line[:60]}" for n, line in req_rows if re.search(r"\bthe system shall\b", line, re.I)]
     check("no 'the system shall'", not system_subj, "; ".join(system_subj[:3]))
 
     libs = [x.strip().lower() for x in args.libs.split(",") if x.strip()]
-    leaks = []
-    for n, l in req_rows:
-        for lib in libs:
-            if re.search(rf"(?<![\w.]){re.escape(lib)}(?![\w])", l.lower()):
-                leaks.append(f"{n}: {lib}")
+    leaks = [f"{n}: {lib}" for n, line in req_rows for lib in libs
+             if re.search(rf"(?<![\w.]){re.escape(lib)}(?![\w])", line.lower())]
     check("no technology names in requirements", not leaks, "; ".join(sorted(set(leaks))[:5]))
 
-    live = [l for _, l in req_rows if "withdrawn" not in l.lower()]
+    live = [line for _, line in req_rows if "withdrawn" not in line.lower()]
     analysis = bp / "01-analysis" / "requirement-analysis.md"
     derived = len(re.findall(r"^\| D-\d+ \|", analysis.read_text(encoding="utf-8"), re.M)) if analysis.is_file() else 0
     budget = args.budget or 0
@@ -96,7 +103,8 @@ def main() -> int:
 
     check("policy values used", any("policy:" in t for t in spec_text.values()))
     check("security capability present",
-          any(re.search(r"-SEC-\d{3}", t) for t in spec_text.values()) or (bp / "02-specs" / "spec-security.md").is_file())
+          any(re.search(r"-SEC-\d{3}", t) for t in spec_text.values())
+          or (bp / "02-specs" / "spec-security.md").is_file())
 
     adrs = list((bp / "03-design" / "adr").glob("ADR-*.md"))
     check("ADRs recorded", adrs, f"{len(adrs)} ADRs")
@@ -110,20 +118,19 @@ def main() -> int:
     check("register script copied into project", reg, ", ".join(str(r.relative_to(ws)) for r in reg))
     code, out = run([sys.executable, str(SCRIPTS / "generate_register.py"), "--blueprint", args.blueprint,
                      "--check", *(["--scan", *args.scan] if args.scan else [])], ws)
-    check("register check exits 0 (up to date, no errors)", code == 0, out.strip().splitlines()[-1] if out.strip() else "")
+    check("register check exits 0 (up to date, no errors)", code == 0, last_line(out))
 
     targets = [args.blueprint] + [p for p in (".github", ".claude", ".cursor", "CLAUDE.md", "AGENTS.md", "README.md")
                                   if (ws / p).exists()]
     code, out = run([sys.executable, str(SCRIPTS / "check_links.py"), *targets], ws)
-    check("no broken links", code == 0, out.strip().splitlines()[-1] if out.strip() else "")
+    check("no broken links", code == 0, last_line(out))
 
-    for agent in [a.strip() for a in args.agents.split(",") if a.strip()]:
-        agent = AGENT_ALIASES.get(agent, agent)
+    for raw in [a.strip() for a in args.agents.split(",") if a.strip()]:
+        agent = AGENT_ALIASES.get(raw, raw)
         if agent not in AGENT_FILES:
             check(f"customisations for {agent}", False, f"unknown agent; use {', '.join(AGENT_FILES)}")
             continue
-        miss = [p for p in AGENT_FILES[agent]
-                if not ((ws / p).is_file() or ((ws / p).is_dir() and any(f.is_file() for f in (ws / p).rglob("*"))))]
+        miss = [p for p in AGENT_FILES[agent] if not has_content(ws / p)]
         check(f"customisations for {agent}", not miss, ", ".join(miss))
 
     width = max(len(r[0]) for r in results)
