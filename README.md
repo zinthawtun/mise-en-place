@@ -126,7 +126,7 @@ paths and merge rules.
   - [`SKILL.md`](./skills/mise-en-place/SKILL.md) — instructions and workflow.
   - [`references/`](./skills/mise-en-place/references/) — vocabulary,
     procedures, templates, modes, and agent customisation guidance.
-  - [`scripts/`](./skills/mise-en-place/scripts/) — Python 3.9+
+  - [`scripts/`](./skills/mise-en-place/scripts/) — Python 3
     standard-library tools for generating the traceability register and
     checking links.
 - [`plugin.json`](./plugin.json), [`.claude-plugin/`](./.claude-plugin/),
